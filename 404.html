@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin</title>
+<title>Residencial Admin v6</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -25,6 +25,19 @@ input,select,textarea{width:100%;padding:10px;border:1px solid #cbd9d5;border-ra
 .role-grid{display:grid;grid-template-columns:1fr;gap:8px}.role-card{border:1px solid var(--line);border-radius:13px;padding:11px}.role-card h4{margin:0}.role-card p{margin:3px 0 0;color:var(--muted);font-size:.83rem}
 dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow:0 24px 70px #0004;max-height:92vh;overflow:auto}dialog::backdrop{background:#0007}.dialog-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.dialog-head h3{margin:0}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(12px);opacity:0;background:#153d38;color:#fff;padding:9px 13px;border-radius:11px;z-index:60;transition:.2s}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.muted{color:var(--muted)}.empty{padding:18px;text-align:center;color:var(--muted)}body.money-hidden [data-money]{filter:blur(7px)}
 @media(min-width:760px){.cards{grid-template-columns:repeat(4,1fr)}.modules{grid-template-columns:repeat(3,1fr)}.unit-grid{grid-template-columns:repeat(2,1fr)}.profile-summary{grid-template-columns:repeat(4,1fr)}.role-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.section-head{align-items:flex-start;flex-direction:column}.form.two{grid-template-columns:1fr}}@media print{body *{visibility:hidden}.print-target,.print-target *{visibility:visible}.print-target{position:absolute;left:0;top:0;width:100%}.top,.sidebar,.overlay{display:none}}
+
+.portal-hero{background:linear-gradient(135deg,#0f766e,#134e4a);color:#fff;border-radius:20px;padding:18px;margin-bottom:10px}
+.portal-hero strong{display:block;font-size:1.8rem;margin-top:5px}
+.portal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.portal-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px}
+.portal-card span{display:block;color:var(--muted);font-size:.8rem}.portal-card strong{display:block;margin-top:4px}
+.statement-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid #edf2f0}
+.statement-row:last-child{border-bottom:0}.statement-debit{color:var(--danger);font-weight:850}.statement-credit{color:#087f5b;font-weight:850}
+.notification-card{border:1px solid var(--line);border-radius:13px;padding:11px;background:#fff}
+.notification-card.unread{border-left:4px solid var(--brand)}.notification-card h4{margin:0}.notification-card p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
+.kpi-inline{display:flex;gap:8px;flex-wrap:wrap}.kpi-inline .badge{margin-top:0}
+@media(min-width:760px){.portal-grid{grid-template-columns:repeat(4,1fr)}}
+
 </style>
 </head>
 <body>
@@ -70,11 +83,63 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <section id="assets" class="view"><div class="section-head"><div><h2>Activos e inventario</h2><p>Equipos y bienes comunes.</p></div><button class="primary" id="addAsset">+ Activo</button></div><div class="panel"><div id="assetList" class="list"></div></div></section>
 <section id="vendors" class="view"><div class="section-head"><div><h2>Proveedores</h2><p>Contratistas y servicios.</p></div><button class="primary" id="addVendor">+ Proveedor</button></div><div class="panel"><div id="vendorList" class="list"></div></div></section>
 
+
+<section id="portal" class="view">
+  <div class="section-head">
+    <div><h2>Portal del Residente</h2><p>Estado de cuenta, pagos, reservas, solicitudes y comunicaciones.</p></div>
+    <button class="secondary" id="portalSwitchResident">Cambiar residente</button>
+  </div>
+  <div class="portal-hero">
+    <span id="portalResidentName">Residente</span>
+    <strong id="portalUnitLabel">Sin unidad</strong>
+    <small id="portalAccountStatus">Estado de cuenta</small>
+  </div>
+  <div class="portal-grid">
+    <div class="portal-card"><span>Balance pendiente</span><strong id="portalPending" data-money>RD$0.00</strong></div>
+    <div class="portal-card"><span>Pagado este año</span><strong id="portalPaidYear" data-money>RD$0.00</strong></div>
+    <div class="portal-card"><span>Reservas activas</span><strong id="portalReservations">0</strong></div>
+    <div class="portal-card"><span>Solicitudes abiertas</span><strong id="portalMaintenance">0</strong></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Estado de cuenta</h3><button class="primary" id="portalPayBtn">Registrar pago</button></div>
+    <div id="portalStatement"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Notificaciones</h3><button class="secondary" id="markNotificationsRead">Marcar leídas</button></div>
+    <div id="portalNotifications" class="list"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Acciones rápidas</h3></div>
+    <div class="actions">
+      <button class="secondary" id="portalReserveBtn">Reservar área</button>
+      <button class="secondary" id="portalMaintenanceBtn">Solicitar mantenimiento</button>
+      <button class="secondary" id="portalVisitorBtn">Autorizar visitante</button>
+    </div>
+  </div>
+</section>
+
+<section id="notifications" class="view">
+  <div class="section-head"><div><h2>Notificaciones</h2><p>Avisos automáticos y recordatorios administrativos.</p></div><button class="primary" id="generateNotificationsBtn">Generar alertas</button></div>
+  <div class="panel"><div id="notificationList" class="list"></div></div>
+</section>
+
 <section id="reports" class="view"><div class="section-head"><div><h2>Informes</h2><p>Estado financiero y operativo.</p></div></div><div class="panel"><div class="actions"><button class="secondary" id="refreshReport">Actualizar</button><button class="primary" id="printReport">PDF / Imprimir</button><button class="secondary" id="shareReport">Compartir</button></div><div id="report" class="report print-target" style="margin-top:10px"></div></div></section>
 
 <section id="admin" class="view">
 <div class="section-head"><div><h2>Administración</h2><p>Configuración, usuarios, roles, respaldo y auditoría.</p></div></div>
 <div class="panel"><div class="form two"><label>Nombre de la organización<input id="sOrg"></label><label>Tipo<select id="sType"><option>Condominio</option><option>Residencial</option><option>Junta de Vecinos</option><option>Asociación</option></select></label><label>Administrador / Tesorero<input id="sManager"></label><label>Cuota mensual RD$<input id="sDue" type="number"></label><label>Días de gracia<input id="sGrace" type="number" min="0"></label><label>Mora / recargo % mensual<input id="sLatePct" type="number" min="0" step="0.1"></label><button class="primary" id="saveSettings">Guardar configuración</button></div></div>
+
+<div class="panel">
+  <div class="panel-head"><h3>Arquitectura y sincronización</h3><span class="badge blue">Preparado para API</span></div>
+  <div class="kpi-inline">
+    <span class="badge">Schema <span id="schemaVersionLabel">3</span></span>
+    <span class="badge">Dispositivo local</span>
+    <span class="badge">IDs estables</span>
+    <span class="badge">Auditoría por usuario</span>
+  </div>
+  <p class="muted">La PWA mantiene los datos en IndexedDB, pero los registros nuevos incluyen IDs relacionales, timestamps y usuario creador/modificador para facilitar la futura migración a backend, APK y web de escritorio.</p>
+</div>
+
 <div class="panel"><div class="panel-head"><h3>Usuarios y roles</h3><button class="primary" id="addUser">+ Usuario</button></div><div id="userList" class="role-grid"></div></div>
 <div class="panel"><div class="actions"><button class="primary" id="backupBtn">Exportar respaldo</button><label class="secondary">Restaurar<input id="restoreInput" type="file" accept="application/json" hidden></label></div></div>
 <div class="panel"><h3>Auditoría</h3><div id="auditList" class="list"></div></div>
@@ -85,32 +150,92 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <div class="toast" id="toast"></div>
 
 <script>
-const DB='residencialAdminDB',VER=2;
-const stores=['settings','users','units','residents','transactions','dues','maintenance','incidents','visitors','reservations','notices','meetings','documents','assets','vendors','audit'];
-let db,settings={},saveHandler=null,deferred=null,currentUnitId='',unitTab='account',activeUser=null;
+const DB='residencialAdminDB',VER=4;
+const stores=['settings','users','units','residents','transactions','dues','maintenance','incidents','visitors','reservations','notices','meetings','documents','assets','vendors','notifications','audit'];
+let db,settings={},saveHandler=null,deferred=null,currentUnitId='',unitTab='account',activeUser=null,portalResidentId='';
 const $=x=>document.getElementById(x),uid=p=>p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),today=()=>new Date().toISOString().slice(0,10),ym=d=>(d||today()).slice(0,7),money=n=>new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(Number(n||0)),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])),dateText=s=>s?new Date(s+'T12:00:00').toLocaleDateString('es-DO'):'';
 function toast(m){$('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1700)}
 function openDB(){return new Promise((r,j)=>{const q=indexedDB.open(DB,VER);q.onupgradeneeded=()=>stores.forEach(s=>{if(!q.result.objectStoreNames.contains(s))q.result.createObjectStore(s,{keyPath:'id'})});q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
 function st(n,m='readonly'){return db.transaction(n,m).objectStore(n)}function all(n){return new Promise((r,j)=>{const q=st(n).getAll();q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}function get(n,id){return new Promise((r,j)=>{const q=st(n).get(id);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}function put(n,o){return new Promise((r,j)=>{const q=st(n,'readwrite').put(o);q.onsuccess=()=>r(o);q.onerror=()=>j(q.error)})}function del(n,id){return new Promise((r,j)=>{const q=st(n,'readwrite').delete(id);q.onsuccess=()=>r();q.onerror=()=>j(q.error)})}
 async function audit(a,m,id,d={}){await put('audit',{id:uid('a'),at:new Date().toISOString(),action:a,module:m,entityId:id,user:activeUser?.name||settings.manager||'',detail:d})}
+function actor(){return activeUser?.name||settings.manager||'Sistema'}
+function stampNew(o){const now=new Date().toISOString();return {...o,createdAt:o.createdAt||now,updatedAt:now,createdBy:o.createdBy||actor(),updatedBy:actor(),syncStatus:o.syncStatus||'local'}}
+function stampEdit(o){return {...o,updatedAt:new Date().toISOString(),updatedBy:actor(),syncStatus:'local'}}
+async function backfillSchema(){
+  const units=await all('units'),unitByLabel=new Map(units.map(u=>[String(u.label||'').trim().toLowerCase(),u]));
+  const residentRows=await all('residents');
+  for(const r of residentRows){
+    let changed=false;
+    if(!r.unitId&&r.unitLabel){const u=unitByLabel.get(String(r.unitLabel).trim().toLowerCase());if(u){r.unitId=u.id;changed=true}}
+    if(!r.createdAt){Object.assign(r,stampNew(r));changed=true}
+    if(changed)await put('residents',r)
+  }
+  for(const storeName of ['units','transactions','dues','maintenance','incidents','visitors','reservations','notices','meetings','documents','assets','vendors']){
+    const rows=await all(storeName);
+    for(const row of rows){
+      let changed=false;
+      if(!row.createdAt){Object.assign(row,stampNew(row));changed=true}
+      if(!row.unitId&&row.unitLabel){const u=unitByLabel.get(String(row.unitLabel).trim().toLowerCase());if(u){row.unitId=u.id;changed=true}}
+      if(changed)await put(storeName,row)
+    }
+  }
+  settings.schemaVersion=3;await put('settings',{...settings,id:'main'})
+}
+async function ensurePortalResident(){
+  const rs=(await all('residents')).filter(r=>r.status!=='Inactivo');
+  if(!rs.length){portalResidentId='';return null}
+  portalResidentId=settings.portalResidentId&&rs.some(r=>r.id===settings.portalResidentId)?settings.portalResidentId:rs[0].id;
+  settings.portalResidentId=portalResidentId;await put('settings',{...settings,id:'main'});
+  return rs.find(r=>r.id===portalResidentId)
+}
+async function createNotification({title,body,type='info',residentId='',unitId='',dueId='',priority='normal'}){
+  const key=`${type}|${residentId}|${unitId}|${dueId}|${title}`;
+  const existing=(await all('notifications')).find(n=>n.dedupeKey===key&&!n.archived);
+  if(existing)return existing;
+  const n=stampNew({id:uid('notif'),title,body,type,residentId,unitId,dueId,priority,read:false,archived:false,dedupeKey:key,date:today()});
+  await put('notifications',n);return n
+}
+async function generateAutomaticNotifications(){
+  const [duesRows,maintRows,resRows]=await Promise.all([all('dues'),all('maintenance'),all('residents')]);
+  const todayDt=new Date(today()+'T12:00:00');
+  for(const d of duesRows){
+    if(duePending(d)<=0)continue;
+    const unitResidents=resRows.filter(r=>r.unitId===d.unitId||r.unitLabel===d.unitLabel);
+    for(const r of unitResidents){
+      await createNotification({title:'Cuota pendiente',body:`La unidad ${d.unitLabel||''} tiene ${money(duePending(d))} pendiente correspondiente a ${d.month}.`,type:'due',residentId:r.id,unitId:d.unitId||'',dueId:d.id,priority:'high'})
+    }
+  }
+  for(const m of maintRows.filter(x=>!['Completado','Cancelado'].includes(x.status))){
+    const age=Math.floor((todayDt-new Date((m.date||today())+'T12:00:00'))/86400000);
+    if(age>=7){
+      const unitResidents=resRows.filter(r=>r.unitId===m.unitId&&m.unitId);
+      for(const r of unitResidents){
+        await createNotification({title:'Solicitud de mantenimiento en seguimiento',body:`${m.title} continúa en estado ${m.status}.`,type:'maintenance',residentId:r.id,unitId:m.unitId||'',priority:'normal'})
+      }
+    }
+  }
+  await audit('generate','notifications','automatic',{at:new Date().toISOString()})
+}
+
 const roles={
 'Administrador':['dashboard','residents','treasury','dues','maintenance','security','reservations','communications','meetings','documents','assets','vendors','reports','admin'],
 'Tesorero':['dashboard','residents','treasury','dues','reports'],
 'Seguridad':['dashboard','residents','security','reservations'],
 'Mantenimiento':['dashboard','residents','maintenance','assets','vendors'],
 'Junta Directiva':['dashboard','residents','treasury','dues','maintenance','security','communications','meetings','documents','reports'],
-'Consulta':['dashboard','residents','communications','reports']
+'Consulta':['dashboard','residents','communications','reports'],
+'Residente':['portal','communications','reservations','notifications']
 };
-const modules=[['dashboard','🏠 Inicio'],['residents','👥 Residentes y unidades'],['treasury','💰 Tesorería'],['dues','🧾 Cuotas y cobros'],['maintenance','🛠️ Mantenimiento'],['security','🛡️ Seguridad y accesos'],['reservations','📅 Áreas comunes'],['communications','📣 Comunicaciones'],['meetings','🗳️ Reuniones y actas'],['documents','📁 Documentos'],['assets','📦 Activos e inventario'],['vendors','🤝 Proveedores'],['reports','📊 Informes'],['admin','⚙️ Administración']];
+const modules=[['dashboard','🏠 Inicio'],['residents','👥 Residentes y unidades'],['treasury','💰 Tesorería'],['dues','🧾 Cuotas y cobros'],['maintenance','🛠️ Mantenimiento'],['security','🛡️ Seguridad y accesos'],['reservations','📅 Áreas comunes'],['communications','📣 Comunicaciones'],['meetings','🗳️ Reuniones y actas'],['documents','📁 Documentos'],['assets','📦 Activos e inventario'],['vendors','🤝 Proveedores'],['portal','📱 Portal del Residente'],['notifications','🔔 Notificaciones'],['reports','📊 Informes'],['admin','⚙️ Administración']];
 function menu(o){$('sidebar').classList.toggle('open',o);$('overlay').classList.toggle('show',o)}$('menuBtn').onclick=()=>menu(true);$('closeMenu').onclick=()=>menu(false);$('overlay').onclick=()=>menu(false);
 function can(v){if(!activeUser)return true;return (roles[activeUser.role]||roles.Consulta).includes(v)}
 function buildNav(){const allowed=modules.filter(x=>can(x[0]));$('nav').innerHTML=allowed.map(x=>`<button data-v="${x[0]}">${x[1]}</button>`).join('');$('moduleGrid').innerHTML=allowed.filter(x=>!['dashboard','admin'].includes(x[0])).slice(0,6).map(x=>`<button class="module" data-jump="${x[0]}"><b>${x[1]}</b><span>Gestionar módulo</span></button>`).join('');document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>view(b.dataset.v));document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>view(b.dataset.jump))}
 function view(v){if(!can(v)){toast('Tu rol no tiene acceso a este módulo');return}document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('active',x.dataset.v===v));menu(false);render(v);window.scrollTo({top:0,behavior:'smooth'})}
-async function loadSettings(){settings=await get('settings','main')||{id:'main',organization:'Residencial Admin',orgType:'Residencial',manager:'',dueAmount:0,graceDays:5,latePct:2};$('orgName').textContent=settings.organization;$('orgType').textContent=settings.orgType;$('sOrg').value=settings.organization;$('sType').value=settings.orgType;$('sManager').value=settings.manager||'';$('sDue').value=settings.dueAmount||0;$('sGrace').value=settings.graceDays??5;$('sLatePct').value=settings.latePct??2}
+async function loadSettings(){settings=await get('settings','main')||{id:'main',organization:'Residencial Admin',orgType:'Residencial',manager:'',dueAmount:0,graceDays:5,latePct:2,schemaVersion:3};$('orgName').textContent=settings.organization;$('orgType').textContent=settings.orgType;$('sOrg').value=settings.organization;$('sType').value=settings.orgType;$('sManager').value=settings.manager||'';$('sDue').value=settings.dueAmount||0;$('sGrace').value=settings.graceDays??5;$('sLatePct').value=settings.latePct??2;if($('schemaVersionLabel'))$('schemaVersionLabel').textContent=settings.schemaVersion||3}
 async function ensureDefaultUser(){let us=await all('users');if(!us.length){const u={id:'user_admin',name:settings.manager||'Administrador',role:'Administrador',active:true};await put('users',u);us=[u]}activeUser=us.find(x=>x.id===settings.activeUserId)||us.find(x=>x.active)||us[0];$('activeUserLabel').textContent=activeUser?`${activeUser.name} · ${activeUser.role}`:'';buildNav()}
 function totals(tx){return tx.reduce((a,t)=>{if(t.status==='void')return a;if(t.type==='income')a.i+=+t.amount;if(t.type==='expense')a.e+=+t.amount;if(t.type==='sponsored')a.s+=+t.amount;return a},{i:0,e:0,s:0})}
 function duePending(d){return Math.max(0,(+d.amountDue||0)+(+d.lateFee||0)-(+d.amountPaid||0))}
-async function render(v){if(v==='dashboard')return dash();if(v==='residents')return residents();if(v==='unitProfile')return renderUnitProfile();if(v==='treasury')return treasury();if(v==='dues')return dues();if(v==='maintenance')return maintenance();if(v==='security')return security();if(v==='reservations')return reservations();if(v==='communications')return communications();if(v==='meetings')return meetings();if(v==='documents')return documents();if(v==='assets')return assets();if(v==='vendors')return vendors();if(v==='reports')return report();if(v==='admin'){await loadSettings();await users();return audits()}}
+async function render(v){if(v==='dashboard')return dash();if(v==='residents')return residents();if(v==='unitProfile')return renderUnitProfile();if(v==='treasury')return treasury();if(v==='dues')return dues();if(v==='maintenance')return maintenance();if(v==='security')return security();if(v==='reservations')return reservations();if(v==='communications')return communications();if(v==='meetings')return meetings();if(v==='documents')return documents();if(v==='assets')return assets();if(v==='vendors')return vendors();if(v==='portal')return portal();if(v==='notifications')return notifications();if(v==='reports')return report();if(v==='admin'){await loadSettings();await users();return audits()}}
 async function dash(){const [u,r,t,d,m,a]=await Promise.all([all('units'),all('residents'),all('transactions'),all('dues'),all('maintenance'),all('audit')]),x=totals(t);$('dashBalance').textContent=money(x.i-x.e);$('dashUnits').textContent=u.length;$('dashResidents').textContent=r.filter(x=>x.status!=='Inactivo').length;$('dashPending').textContent=money(d.reduce((s,q)=>s+duePending(q),0));$('dashMaint').textContent=m.filter(q=>!['Completado','Cancelado'].includes(q.status)).length;$('backupState').textContent=settings.lastBackupAt?'Último respaldo: '+new Date(settings.lastBackupAt).toLocaleDateString('es-DO'):'⚠️ Sin respaldo';$('recent').innerHTML=a.sort((x,y)=>y.at.localeCompare(x.at)).slice(0,8).map(q=>`<div class="item"><div><div class="title">${esc(q.module)} · ${esc(q.action)}</div><div class="sub">${new Date(q.at).toLocaleString('es-DO')} · ${esc(q.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin actividad.</div>'}
 async function residents(){const q=($('residentSearch').value||'').toLowerCase(),[rs,us,ds]=await Promise.all([all('residents'),all('units'),all('dues')]);const filtered=rs.filter(x=>(x.name+' '+x.phone+' '+x.unitLabel).toLowerCase().includes(q));$('unitGrid').innerHTML=us.map(u=>{const rr=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),pd=ds.filter(d=>d.unitId===u.id||d.unitLabel===u.label).reduce((s,d)=>s+duePending(d),0);return `<div class="unit-card"><div class="unit-top"><div><button class="link title" onclick="openUnit('${u.id}')">${esc(u.label)}</button><div class="meta">${esc(u.type||'Unidad')} · ${rr.length} residente(s)</div></div><div class="balance ${pd>0?'expense':'income'}" data-money>${money(pd)}</div></div><button class="secondary" style="margin-top:9px" onclick="openUnit('${u.id}')">Ver ficha / estado</button></div>`}).join('')||'<div class="empty">No hay unidades creadas.</div>';$('residentList').innerHTML=filtered.map(x=>`<div class="item"><div class="item-main"><div class="title">${esc(x.name)}</div><div class="sub">${esc(x.role)} · ${esc(x.unitLabel||'Sin unidad')} · ${esc(x.phone||'')}</div></div></div>`).join('')||'<div class="empty">Sin residentes.</div>'}
 window.openUnit=id=>{currentUnitId=id;unitTab='account';view('unitProfile')};$('backUnits').onclick=()=>view('residents');document.querySelectorAll('[data-unit-tab]').forEach(b=>b.onclick=()=>{unitTab=b.dataset.unitTab;document.querySelectorAll('[data-unit-tab]').forEach(x=>x.classList.toggle('active',x.dataset.unitTab===unitTab));renderUnitProfile()});
@@ -130,14 +255,52 @@ async function vendors(){const d=await all('vendors');$('vendorList').innerHTML=
 async function audits(){const d=await all('audit');$('auditList').innerHTML=d.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,50).map(x=>`<div class="item"><div><div class="title">${esc(x.module)} · ${esc(x.action)}</div><div class="sub">${new Date(x.at).toLocaleString('es-DO')} · ${esc(x.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin auditoría.</div>'}
 async function users(){const d=await all('users');$('userList').innerHTML=d.map(x=>`<div class="role-card"><h4>${esc(x.name)}</h4><p>${esc(x.role)}${activeUser?.id===x.id?' · Usuario activo':''}</p><div class="actions" style="margin-top:8px"><button class="secondary" onclick="activateUser('${x.id}')">Usar perfil</button></div></div>`).join('')}
 window.activateUser=async id=>{activeUser=await get('users',id);settings.activeUserId=id;await put('settings',settings);$('activeUserLabel').textContent=`${activeUser.name} · ${activeUser.role}`;buildNav();view('dashboard');toast('Perfil activado')}
+
+async function portal(){
+  const r=await ensurePortalResident();
+  if(!r){
+    $('portalResidentName').textContent='No hay residentes';
+    $('portalUnitLabel').textContent='Crea primero residentes y unidades';
+    $('portalStatement').innerHTML='<div class="empty">Sin información.</div>';
+    $('portalNotifications').innerHTML='<div class="empty">Sin notificaciones.</div>';
+    return
+  }
+  const [u,duesRows,txRows,resvRows,maintRows,notifs]=await Promise.all([
+    r.unitId?get('units',r.unitId):Promise.resolve(null),all('dues'),all('transactions'),all('reservations'),all('maintenance'),all('notifications')
+  ]);
+  const unitLabel=u?.label||r.unitLabel||'Sin unidad';
+  const unitDues=duesRows.filter(d=>d.unitId===r.unitId||(r.unitLabel&&d.unitLabel===r.unitLabel)).sort((a,b)=>b.month.localeCompare(a.month));
+  const unitTx=txRows.filter(t=>t.unitId===r.unitId||(r.unitLabel&&t.unitLabel===r.unitLabel)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const pending=unitDues.reduce((s,d)=>s+duePending(d),0);
+  const year=today().slice(0,4);
+  const paidYear=unitTx.filter(t=>t.type==='income'&&String(t.date||'').startsWith(year)).reduce((s,t)=>s+(+t.amount||0),0);
+  $('portalResidentName').textContent=r.name;
+  $('portalUnitLabel').textContent=unitLabel;
+  $('portalAccountStatus').textContent=pending>0?'Cuenta con balance pendiente':'Cuenta al día';
+  $('portalPending').textContent=money(pending);
+  $('portalPaidYear').textContent=money(paidYear);
+  $('portalReservations').textContent=resvRows.filter(x=>x.residentName===r.name&&!['Cancelada','Completada'].includes(x.status)).length;
+  $('portalMaintenance').textContent=maintRows.filter(x=>x.unitId===r.unitId&&!['Completado','Cancelado'].includes(x.status)).length;
+  const statement=[
+    ...unitDues.map(d=>({date:`${d.month}-01`,label:`Cuota ${d.month}${d.lateFee?' + mora':''}`,amount:(+d.amountDue||0)+(+d.lateFee||0),kind:'debit'})),
+    ...unitTx.filter(t=>t.type==='income').map(t=>({date:t.date,label:t.concept||'Pago',amount:+t.amount||0,kind:'credit'}))
+  ].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  $('portalStatement').innerHTML=statement.map(x=>`<div class="statement-row"><div><div class="title">${esc(x.label)}</div><div class="sub">${dateText(x.date)}</div></div><div class="${x.kind==='debit'?'statement-debit':'statement-credit'}" data-money>${x.kind==='debit'?'+':'-'}${money(x.amount)}</div></div>`).join('')||'<div class="empty">Sin movimientos en el estado de cuenta.</div>';
+  const myNotifs=notifs.filter(n=>(!n.residentId||n.residentId===r.id)&&!n.archived).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  $('portalNotifications').innerHTML=myNotifs.slice(0,20).map(n=>`<div class="notification-card ${n.read?'':'unread'}"><h4>${esc(n.title)}</h4><p>${esc(n.body)}</p><div class="sub">${dateText(n.date)} · ${esc(n.type)}</div></div>`).join('')||'<div class="empty">No tienes notificaciones.</div>'
+}
+async function notifications(){
+  const rows=(await all('notifications')).filter(n=>!n.archived).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+  $('notificationList').innerHTML=rows.map(n=>`<div class="notification-card ${n.read?'':'unread'}"><h4>${esc(n.title)}</h4><p>${esc(n.body)}</p><div class="sub">${dateText(n.date)} · ${esc(n.type)} · ${n.priority==='high'?'Alta prioridad':'Normal'}</div></div>`).join('')||'<div class="empty">Sin notificaciones.</div>'
+}
 async function report(){const [t,d,m,i,r,u]=await Promise.all([all('transactions'),all('dues'),all('maintenance'),all('incidents'),all('residents'),all('units')]),x=totals(t),p=d.reduce((s,q)=>s+duePending(q),0);$('report').innerHTML=`<h2>${esc(settings.organization)}</h2><p><strong>Informe Administrativo General</strong></p><table><tr><td>Unidades</td><td>${u.length}</td></tr><tr><td>Residentes</td><td>${r.length}</td></tr><tr><td>Ingresos</td><td>${money(x.i)}</td></tr><tr><td>Gastos</td><td>${money(x.e)}</td></tr><tr><td>Balance</td><td>${money(x.i-x.e)}</td></tr><tr><td>Cuentas por cobrar</td><td>${money(p)}</td></tr><tr><td>Órdenes abiertas</td><td>${m.filter(q=>!['Completado','Cancelado'].includes(q.status)).length}</td></tr><tr><td>Incidentes</td><td>${i.length}</td></tr></table>`}
 function form(title,fields,save){$('dlgTitle').textContent=title;$('dlgFields').innerHTML=fields.map(f=>`<label>${f.label}${f.type==='textarea'?`<textarea id="f_${f.id}" rows="3">${esc(f.value||'')}</textarea>`:f.type==='select'?`<select id="f_${f.id}">${f.options.map(o=>`<option ${o===f.value?'selected':''}>${esc(o)}</option>`).join('')}</select>`:`<input id="f_${f.id}" type="${f.type||'text'}" value="${esc(f.value||'')}">`}</label>`).join('');saveHandler=save;$('dlg').showModal()}$('dlgSave').onclick=async e=>{e.preventDefault();await saveHandler?.();$('dlg').close();await render(document.querySelector('.view.active').id);toast('Guardado')}
-$('addUnit').onclick=()=>form('Nueva unidad',[{id:'label',label:'Unidad'},{id:'type',label:'Tipo',value:'Apartamento'},{id:'floor',label:'Bloque / nivel'}],async()=>{const o={id:uid('unit'),label:$('f_label').value,type:$('f_type').value,floor:$('f_floor').value};await put('units',o);await audit('create','units',o.id,o)});
-$('addResident').onclick=async()=>{const u=await all('units');form('Nuevo residente',[{id:'name',label:'Nombre completo'},{id:'role',label:'Rol',type:'select',options:['Propietario','Inquilino','Familiar','Otro']},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'phone',label:'Teléfono'},{id:'email',label:'Correo',type:'email'}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o={id:uid('resident'),name:$('f_name').value,role:$('f_role').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,phone:$('f_phone').value,email:$('f_email').value,status:'Activo'};await put('residents',o);await audit('create','residents',o.id,o)})};
-$('addTx').onclick=async()=>{const u=await all('units');form('Nuevo movimiento',[{id:'type',label:'Tipo',type:'select',options:['income','expense','sponsored']},{id:'date',label:'Fecha',type:'date',value:today()},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'person',label:'Persona / responsable'},{id:'amount',label:'Monto',type:'number'},{id:'concept',label:'Concepto'},{id:'category',label:'Categoría',value:'General'}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o={id:uid('tx'),type:$('f_type').value,date:$('f_date').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,person:$('f_person').value,amount:+$('f_amount').value,concept:$('f_concept').value,category:$('f_category').value,status:'active'};await put('transactions',o);await audit('create','treasury',o.id,o)})};
+$('addUnit').onclick=()=>form('Nueva unidad',[{id:'label',label:'Unidad'},{id:'type',label:'Tipo',value:'Apartamento'},{id:'floor',label:'Bloque / nivel'}],async()=>{const o=stampNew({id:uid('unit'),label:$('f_label').value,type:$('f_type').value,floor:$('f_floor').value});await put('units',o);await audit('create','units',o.id,o)});
+$('addResident').onclick=async()=>{const u=await all('units');form('Nuevo residente',[{id:'name',label:'Nombre completo'},{id:'role',label:'Rol',type:'select',options:['Propietario','Inquilino','Familiar','Otro']},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'phone',label:'Teléfono'},{id:'email',label:'Correo',type:'email'}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o=stampNew({id:uid('resident'),name:$('f_name').value,role:$('f_role').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,phone:$('f_phone').value,email:$('f_email').value,status:'Activo'});await put('residents',o);await audit('create','residents',o.id,o)})};
+$('addTx').onclick=async()=>{const u=await all('units');form('Nuevo movimiento',[{id:'type',label:'Tipo',type:'select',options:['income','expense','sponsored']},{id:'date',label:'Fecha',type:'date',value:today()},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'person',label:'Persona / responsable'},{id:'amount',label:'Monto',type:'number'},{id:'concept',label:'Concepto'},{id:'category',label:'Categoría',value:'General'}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o=stampNew({id:uid('tx'),type:$('f_type').value,date:$('f_date').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,person:$('f_person').value,amount:+$('f_amount').value,concept:$('f_concept').value,category:$('f_category').value,status:'active'});await put('transactions',o);await audit('create','treasury',o.id,o)})};
 $('genDues').onclick=async()=>{const m=$('duesMonth').value||ym(),u=await all('units');for(const x of u){const id='due_'+m+'_'+x.id;if(!(await get('dues',id)))await put('dues',{id,month:m,unitId:x.id,unitLabel:x.label,amountDue:+settings.dueAmount||0,lateFee:0,amountPaid:0,status:'pending',dueDate:m+'-'+String(Math.max(1,+settings.graceDays||5)).padStart(2,'0')})}await audit('generate','dues',m,{count:u.length});dues();toast('Cuotas generadas')};
 $('applyLateFees').onclick=async()=>{const m=$('duesMonth').value||ym(),ds=(await all('dues')).filter(d=>d.month===m),pct=+settings.latePct||0;let n=0;for(const d of ds){if(duePending(d)>0&&!d.lateApplied){d.lateFee=Math.round((+d.amountDue||0)*pct)/100;d.lateApplied=true;await put('dues',d);n++}}await audit('apply','late-fees',m,{count:n,pct});dues();toast(`Mora aplicada a ${n} cuenta(s)`)};
-function openPaymentForm(unit=null){form('Registrar pago',[{id:'date',label:'Fecha',type:'date',value:today()},{id:'amount',label:'Monto',type:'number'},{id:'person',label:'Pagado por'},{id:'method',label:'Método',type:'select',options:['Efectivo','Transferencia','Cheque','Otro']}],async()=>{const amount=+$('f_amount').value,ds=(await all('dues')).filter(d=>(unit?d.unitId===unit.id:true)&&duePending(d)>0).sort((a,b)=>a.month.localeCompare(b.month));let left=amount;for(const d of ds){if(left<=0)break;const p=duePending(d),apply=Math.min(left,p);d.amountPaid=(+d.amountPaid||0)+apply;d.status=duePending(d)-apply<=0?'paid':'partial';await put('dues',d);left-=apply}const tx={id:uid('tx'),type:'income',date:$('f_date').value,unitId:unit?.id||'',unitLabel:unit?.label||'',person:$('f_person').value,amount,concept:'Pago de cuota / estado de cuenta',category:'Cuota',method:$('f_method').value,status:'active'};await put('transactions',tx);await audit('payment','dues',tx.id,{amount,unit:unit?.label||''})})}
+function openPaymentForm(unit=null){form('Registrar pago',[{id:'date',label:'Fecha',type:'date',value:today()},{id:'amount',label:'Monto',type:'number'},{id:'person',label:'Pagado por'},{id:'method',label:'Método',type:'select',options:['Efectivo','Transferencia','Cheque','Otro']}],async()=>{const amount=+$('f_amount').value,ds=(await all('dues')).filter(d=>(unit?d.unitId===unit.id:true)&&duePending(d)>0).sort((a,b)=>a.month.localeCompare(b.month));let left=amount;for(const d of ds){if(left<=0)break;const p=duePending(d),apply=Math.min(left,p);d.amountPaid=(+d.amountPaid||0)+apply;d.status=duePending(d)-apply<=0?'paid':'partial';await put('dues',d);left-=apply}const tx=stampNew({id:uid('tx'),type:'income',date:$('f_date').value,unitId:unit?.id||'',unitLabel:unit?.label||'',person:$('f_person').value,amount,concept:'Pago de cuota / estado de cuenta',category:'Cuota',method:$('f_method').value,status:'active'});await put('transactions',tx);await audit('payment','dues',tx.id,{amount,unit:unit?.label||''})})}
 $('recordDuePayment').onclick=async()=>{const u=await all('units');form('Seleccionar unidad',[{id:'unit',label:'Unidad',type:'select',options:u.map(x=>x.label)}],async()=>{const unit=u.find(x=>x.label===$('f_unit').value);$('dlg').close();setTimeout(()=>openPaymentForm(unit),100)})};
 $('addMaint').onclick=async()=>{const [u,v]=await Promise.all([all('units'),all('vendors')]);form('Nueva orden de trabajo',[{id:'title',label:'Título'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'location',label:'Unidad / área',type:'select',options:['Área común',...u.map(x=>x.label)]},{id:'category',label:'Categoría',type:'select',options:['Electricidad','Plomería','Limpieza','Jardinería','Seguridad','Pintura','Construcción','Otro']},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'assigned',label:'Responsable interno'},{id:'vendor',label:'Proveedor',type:'select',options:['Sin proveedor',...v.map(x=>x.name)]},{id:'estimated',label:'Costo estimado',type:'number'},{id:'actual',label:'Costo real',type:'number'},{id:'status',label:'Estado',type:'select',options:['Abierto','Asignado','En proceso','En espera','Completado','Cancelado']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const loc=$('f_location').value,un=u.find(x=>x.label===loc);const o={id:uid('maint'),title:$('f_title').value,date:$('f_date').value,unitId:un?.id||'',location:loc,category:$('f_category').value,priority:$('f_priority').value,assignedTo:$('f_assigned').value,vendorName:$('f_vendor').value==='Sin proveedor'?'':$('f_vendor').value,estimatedCost:+$('f_estimated').value||0,actualCost:+$('f_actual').value||0,status:$('f_status').value,description:$('f_description').value};await put('maintenance',o);await audit('create','maintenance',o.id,o)})};
 $('addIncident').onclick=()=>form('Nuevo incidente',[{id:'title',label:'Título'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'location',label:'Lugar'},{id:'severity',label:'Severidad',type:'select',options:['Baja','Media','Alta','Crítica']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o={id:uid('inc'),title:$('f_title').value,date:$('f_date').value,location:$('f_location').value,severity:$('f_severity').value,description:$('f_description').value};await put('incidents',o);await audit('create','security',o.id,o)});
@@ -149,12 +312,39 @@ $('addDocument').onclick=()=>form('Nuevo documento',[{id:'title',label:'Título'
 $('addAsset').onclick=()=>form('Nuevo activo',[{id:'name',label:'Nombre'},{id:'category',label:'Categoría'},{id:'quantity',label:'Cantidad',type:'number',value:1},{id:'location',label:'Ubicación'},{id:'condition',label:'Condición',type:'select',options:['Excelente','Buena','Regular','Reparación','Fuera de servicio']}],async()=>{const o={id:uid('asset'),name:$('f_name').value,category:$('f_category').value,quantity:+$('f_quantity').value,location:$('f_location').value,condition:$('f_condition').value};await put('assets',o);await audit('create','assets',o.id,o)});
 $('addVendor').onclick=()=>form('Nuevo proveedor',[{id:'name',label:'Nombre / empresa'},{id:'service',label:'Servicio'},{id:'phone',label:'Teléfono'},{id:'email',label:'Correo',type:'email'}],async()=>{const o={id:uid('vendor'),name:$('f_name').value,service:$('f_service').value,phone:$('f_phone').value,email:$('f_email').value};await put('vendors',o);await audit('create','vendors',o.id,o)});
 $('addUser').onclick=()=>form('Nuevo usuario',[{id:'name',label:'Nombre'},{id:'role',label:'Rol',type:'select',options:Object.keys(roles)}],async()=>{const o={id:uid('user'),name:$('f_name').value,role:$('f_role').value,active:true};await put('users',o);await audit('create','users',o.id,o)});
+
+$('portalSwitchResident').onclick=async()=>{
+  const rs=(await all('residents')).filter(r=>r.status!=='Inactivo');
+  if(!rs.length){toast('No hay residentes');return}
+  form('Seleccionar residente',[{id:'resident',label:'Residente',type:'select',options:rs.map(r=>r.name)}],async()=>{
+    const r=rs.find(x=>x.name===$('f_resident').value);if(!r)return;
+    portalResidentId=r.id;settings.portalResidentId=r.id;await put('settings',{...settings,id:'main'});await audit('switch','portal',r.id);setTimeout(()=>portal(),50)
+  })
+};
+$('portalPayBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;openPaymentForm(u)};
+$('portalReserveBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;form('Nueva reserva',[{id:'area',label:'Área'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'time',label:'Horario'},{id:'status',label:'Estado',type:'select',options:['Solicitada','Confirmada']}],async()=>{const o=stampNew({id:uid('resv'),area:$('f_area').value,date:$('f_date').value,time:$('f_time').value,residentId:r.id,residentName:r.name,unitId:r.unitId||'',status:$('f_status').value});await put('reservations',o);await audit('create','portal-reservation',o.id,o)})};
+$('portalMaintenanceBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Solicitar mantenimiento',[{id:'title',label:'Título'},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o=stampNew({id:uid('maint'),title:$('f_title').value,date:today(),unitId:r.unitId||'',location:u?.label||r.unitLabel||'',category:'Solicitud residente',priority:$('f_priority').value,assignedTo:'',vendorName:'',estimatedCost:0,actualCost:0,status:'Abierto',description:$('f_description').value,residentId:r.id});await put('maintenance',o);await audit('create','portal-maintenance',o.id,o)})};
+$('portalVisitorBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Autorizar visitante',[{id:'name',label:'Nombre visitante'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'purpose',label:'Motivo'},{id:'vehicle',label:'Vehículo / placa'}],async()=>{const o=stampNew({id:uid('vis'),name:$('f_name').value,date:$('f_date').value,unitId:r.unitId||'',unitLabel:u?.label||r.unitLabel||'',authorizedBy:r.name,purpose:$('f_purpose').value,vehicle:$('f_vehicle').value,checkIn:'',checkOut:'',preAuthorized:true,residentId:r.id});await put('visitors',o);await audit('authorize','portal-visitor',o.id,o)})};
+$('markNotificationsRead').onclick=async()=>{const r=await ensurePortalResident();for(const n of await all('notifications')){if((!n.residentId||n.residentId===r?.id)&&!n.read){n.read=true;await put('notifications',stampEdit(n))}}await portal();toast('Notificaciones marcadas como leídas')};
+$('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await notifications();toast('Alertas generadas')};
+
 $('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('\n');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
-$('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
+$('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,schemaVersion:3};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),700)}
-$('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:5,schemaVersion:2,exportedAt:new Date().toISOString()};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
+$('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:6,schemaVersion:3,exportedAt:new Date().toISOString()};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
 $('restoreInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.format==='residencial-admin'){for(const s of stores){for(const x of await all(s))await del(s,x.id);for(const x of d[s]||[])await put(s,x)}}else if(d.version>=3&&Array.isArray(d.members)&&Array.isArray(d.transactions)){for(const m of d.members||[])await put('residents',{id:'legacy_'+m.id,name:m.name,role:'Propietario',unitId:'',unitLabel:'',phone:m.phone||'',email:'',status:'Activo'});for(const t of d.transactions||[])await put('transactions',t);if(d.settings)await put('settings',{id:'main',organization:d.settings.organization||'Residencial Admin',orgType:'Junta de Vecinos',manager:d.settings.treasurer||'',dueAmount:+d.settings.dueAmount||0,graceDays:5,latePct:2})}else throw Error('Formato no compatible');await loadSettings();await ensureDefaultUser();view('dashboard');toast('Respaldo restaurado')}catch(err){alert('No se pudo restaurar: '+err.message)}e.target.value=''};
 $('privacyBtn').onclick=()=>document.body.classList.toggle('money-hidden');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('installBtn').hidden=true};
-(async()=>{db=await openDB();await loadSettings();await ensureDefaultUser();$('duesMonth').value=ym();buildNav();await dash();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})})();
+(async()=>{
+  db=await openDB();
+  await loadSettings();
+  await ensureDefaultUser();
+  await backfillSchema();
+  await ensurePortalResident();
+  await generateAutomaticNotifications();
+  $('duesMonth').value=ym();
+  buildNav();
+  await dash();
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})
+})();
 </script>
 </body></html>
