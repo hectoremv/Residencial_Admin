@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v6</title>
+<title>Residencial Admin v6.1</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -37,6 +37,14 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 .notification-card.unread{border-left:4px solid var(--brand)}.notification-card h4{margin:0}.notification-card p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 .kpi-inline{display:flex;gap:8px;flex-wrap:wrap}.kpi-inline .badge{margin-top:0}
 @media(min-width:760px){.portal-grid{grid-template-columns:repeat(4,1fr)}}
+
+
+/* v6.1 mobile header */
+.brand{min-width:0;overflow:hidden}
+.brand h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw;line-height:1.08}
+.brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+#activeUserLabel{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+@media(max-width:520px){header{gap:8px}.brand h1{font-size:1.35rem;max-width:40vw}.brand small{font-size:.68rem;max-width:40vw}#activeUserLabel{font-size:.72rem;max-width:31vw}}
 
 </style>
 </head>
@@ -86,7 +94,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 
 <section id="portal" class="view">
   <div class="section-head">
-    <div><h2>Portal del Residente</h2><p>Estado de cuenta, pagos, reservas, solicitudes y comunicaciones.</p></div>
+    <div><h2>Portal del Residente</h2><p>Vista personal del residente: cuenta, servicios y gestiones de su unidad.</p></div>
     <button class="secondary" id="portalSwitchResident">Cambiar residente</button>
   </div>
   <div class="portal-hero">
@@ -214,7 +222,7 @@ async function generateAutomaticNotifications(){
       }
     }
   }
-  await audit('generate','notifications','automatic',{at:new Date().toISOString()})
+  return true
 }
 
 const roles={
@@ -326,7 +334,7 @@ $('portalReserveBtn').onclick=async()=>{const r=await ensurePortalResident();if(
 $('portalMaintenanceBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Solicitar mantenimiento',[{id:'title',label:'Título'},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o=stampNew({id:uid('maint'),title:$('f_title').value,date:today(),unitId:r.unitId||'',location:u?.label||r.unitLabel||'',category:'Solicitud residente',priority:$('f_priority').value,assignedTo:'',vendorName:'',estimatedCost:0,actualCost:0,status:'Abierto',description:$('f_description').value,residentId:r.id});await put('maintenance',o);await audit('create','portal-maintenance',o.id,o)})};
 $('portalVisitorBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Autorizar visitante',[{id:'name',label:'Nombre visitante'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'purpose',label:'Motivo'},{id:'vehicle',label:'Vehículo / placa'}],async()=>{const o=stampNew({id:uid('vis'),name:$('f_name').value,date:$('f_date').value,unitId:r.unitId||'',unitLabel:u?.label||r.unitLabel||'',authorizedBy:r.name,purpose:$('f_purpose').value,vehicle:$('f_vehicle').value,checkIn:'',checkOut:'',preAuthorized:true,residentId:r.id});await put('visitors',o);await audit('authorize','portal-visitor',o.id,o)})};
 $('markNotificationsRead').onclick=async()=>{const r=await ensurePortalResident();for(const n of await all('notifications')){if((!n.residentId||n.residentId===r?.id)&&!n.read){n.read=true;await put('notifications',stampEdit(n))}}await portal();toast('Notificaciones marcadas como leídas')};
-$('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await notifications();toast('Alertas generadas')};
+$('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await audit('generate','notifications','manual',{at:new Date().toISOString()});await notifications();toast('Alertas actualizadas')};
 
 $('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('\n');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
 $('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,schemaVersion:3};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
@@ -338,6 +346,9 @@ $('privacyBtn').onclick=()=>document.body.classList.toggle('money-hidden');windo
   db=await openDB();
   await loadSettings();
   await ensureDefaultUser();
+  for(const a of await all('audit')){
+    if(a.module==='notifications'&&a.action==='generate'&&a.entityId==='automatic') await del('audit',a.id);
+  }
   await backfillSchema();
   await ensurePortalResident();
   await generateAutomaticNotifications();
