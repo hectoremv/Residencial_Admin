@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v6.3</title>
+<title>Residencial Admin v6</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -37,14 +37,6 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 .notification-card.unread{border-left:4px solid var(--brand)}.notification-card h4{margin:0}.notification-card p{margin:4px 0 0;color:var(--muted);font-size:.85rem}
 .kpi-inline{display:flex;gap:8px;flex-wrap:wrap}.kpi-inline .badge{margin-top:0}
 @media(min-width:760px){.portal-grid{grid-template-columns:repeat(4,1fr)}}
-
-
-/* v6.1 mobile header */
-.brand{min-width:0;overflow:hidden}
-.brand h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw;line-height:1.08}
-.brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
-#activeUserLabel{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
-@media(max-width:520px){header{gap:8px}.brand h1{font-size:1.35rem;max-width:40vw}.brand small{font-size:.68rem;max-width:40vw}#activeUserLabel{font-size:.72rem;max-width:31vw}}
 
 </style>
 </head>
@@ -94,7 +86,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 
 <section id="portal" class="view">
   <div class="section-head">
-    <div><h2>Portal del Residente</h2><p id="portalModeText">Vista personal del residente: cuenta, servicios y gestiones de su unidad.</p></div>
+    <div><h2>Portal del Residente</h2><p>Estado de cuenta, pagos, reservas, solicitudes y comunicaciones.</p></div>
     <button class="secondary" id="portalSwitchResident">Cambiar residente</button>
   </div>
   <div class="portal-hero">
@@ -138,7 +130,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <div class="panel"><div class="form two"><label>Nombre de la organización<input id="sOrg"></label><label>Tipo<select id="sType"><option>Condominio</option><option>Residencial</option><option>Junta de Vecinos</option><option>Asociación</option></select></label><label>Administrador / Tesorero<input id="sManager"></label><label>Cuota mensual RD$<input id="sDue" type="number"></label><label>Días de gracia<input id="sGrace" type="number" min="0"></label><label>Mora / recargo % mensual<input id="sLatePct" type="number" min="0" step="0.1"></label><button class="primary" id="saveSettings">Guardar configuración</button></div></div>
 
 <div class="panel">
-  <div class="panel-head"><h3>Arquitectura y sincronización</h3><span class="badge blue">Versión v6.3</span></div>
+  <div class="panel-head"><h3>Arquitectura y sincronización</h3><span class="badge blue">Preparado para API</span></div>
   <div class="kpi-inline">
     <span class="badge">Schema <span id="schemaVersionLabel">3</span></span>
     <span class="badge">Dispositivo local</span>
@@ -222,15 +214,15 @@ async function generateAutomaticNotifications(){
       }
     }
   }
-  return true
+  await audit('generate','notifications','automatic',{at:new Date().toISOString()})
 }
 
 const roles={
-'Administrador':['dashboard','residents','treasury','dues','maintenance','security','reservations','communications','meetings','documents','assets','vendors','portal','notifications','reports','admin'],
+'Administrador':['dashboard','residents','treasury','dues','maintenance','security','reservations','communications','meetings','documents','assets','vendors','reports','admin'],
 'Tesorero':['dashboard','residents','treasury','dues','reports'],
 'Seguridad':['dashboard','residents','security','reservations'],
 'Mantenimiento':['dashboard','residents','maintenance','assets','vendors'],
-'Junta Directiva':['dashboard','residents','treasury','dues','maintenance','security','reservations','communications','meetings','documents','portal','notifications','reports'],
+'Junta Directiva':['dashboard','residents','treasury','dues','maintenance','security','communications','meetings','documents','reports'],
 'Consulta':['dashboard','residents','communications','reports'],
 'Residente':['portal','communications','reservations','notifications']
 };
@@ -245,122 +237,7 @@ function totals(tx){return tx.reduce((a,t)=>{if(t.status==='void')return a;if(t.
 function duePending(d){return Math.max(0,(+d.amountDue||0)+(+d.lateFee||0)-(+d.amountPaid||0))}
 async function render(v){if(v==='dashboard')return dash();if(v==='residents')return residents();if(v==='unitProfile')return renderUnitProfile();if(v==='treasury')return treasury();if(v==='dues')return dues();if(v==='maintenance')return maintenance();if(v==='security')return security();if(v==='reservations')return reservations();if(v==='communications')return communications();if(v==='meetings')return meetings();if(v==='documents')return documents();if(v==='assets')return assets();if(v==='vendors')return vendors();if(v==='portal')return portal();if(v==='notifications')return notifications();if(v==='reports')return report();if(v==='admin'){await loadSettings();await users();return audits()}}
 async function dash(){const [u,r,t,d,m,a]=await Promise.all([all('units'),all('residents'),all('transactions'),all('dues'),all('maintenance'),all('audit')]),x=totals(t);$('dashBalance').textContent=money(x.i-x.e);$('dashUnits').textContent=u.length;$('dashResidents').textContent=r.filter(x=>x.status!=='Inactivo').length;$('dashPending').textContent=money(d.reduce((s,q)=>s+duePending(q),0));$('dashMaint').textContent=m.filter(q=>!['Completado','Cancelado'].includes(q.status)).length;$('backupState').textContent=settings.lastBackupAt?'Último respaldo: '+new Date(settings.lastBackupAt).toLocaleDateString('es-DO'):'⚠️ Sin respaldo';$('recent').innerHTML=a.sort((x,y)=>y.at.localeCompare(x.at)).slice(0,8).map(q=>`<div class="item"><div><div class="title">${esc(q.module)} · ${esc(q.action)}</div><div class="sub">${new Date(q.at).toLocaleString('es-DO')} · ${esc(q.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin actividad.</div>'}
-async function residents(){
-  const q=($('residentSearch').value||'').toLowerCase(),
-        [rs,us,ds]=await Promise.all([all('residents'),all('units'),all('dues')]),
-        filtered=rs.filter(x=>(`${x.name||''} ${x.phone||''} ${x.unitLabel||''}`).toLowerCase().includes(q));
-
-  $('unitGrid').innerHTML=us.map(u=>{
-    const rr=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),
-          pd=ds.filter(d=>d.unitId===u.id||d.unitLabel===u.label).reduce((sum,d)=>sum+duePending(d),0);
-    return `<div class="unit-card">
-      <div class="unit-top">
-        <div>
-          <button class="link title" onclick="openUnit('${u.id}')">${esc(u.label)}</button>
-          <div class="meta">${esc(u.type||'Unidad')} · ${rr.length} residente(s)</div>
-        </div>
-        <div class="balance ${pd>0?'expense':'income'}" data-money>${money(pd)}</div>
-      </div>
-      <div class="actions" style="margin-top:9px">
-        <button class="secondary" onclick="openUnit('${u.id}')">Ver ficha / estado</button>
-        <button class="ghost" onclick="editUnit('${u.id}')">Editar unidad</button>
-      </div>
-    </div>`
-  }).join('')||'<div class="empty">No hay unidades creadas.</div>';
-
-  $('residentList').innerHTML=filtered.map(x=>`<div class="item">
-    <div class="item-main">
-      <div class="title">${esc(x.name)}</div>
-      <div class="sub">${esc(x.role||'Residente')} · ${esc(x.unitLabel||'Sin unidad')} · ${esc(x.phone||'')}</div>
-      <span class="badge">${esc(x.status||'Activo')}</span>
-    </div>
-    <div class="actions">
-      <button class="secondary" onclick="previewResidentPortal('${x.id}')">Portal</button>
-      <button class="ghost" onclick="editResident('${x.id}')">Editar</button>
-    </div>
-  </div>`).join('')||'<div class="empty">Sin residentes.</div>'
-}
-
-window.editResident=async id=>{
-  let existing=await get('residents',id);if(!existing)return;
-  const units=await all('units');
-  form('Editar residente',[
-    {id:'name',label:'Nombre completo',value:existing.name},
-    {id:'role',label:'Rol',type:'select',options:['Propietario','Inquilino','Familiar','Otro'],value:existing.role||'Propietario'},
-    {id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...units.map(x=>x.label)],value:existing.unitLabel||'Sin unidad'},
-    {id:'phone',label:'Teléfono',value:existing.phone||''},
-    {id:'email',label:'Correo',type:'email',value:existing.email||''},
-    {id:'status',label:'Estado',type:'select',options:['Activo','Inactivo'],value:existing.status||'Activo'}
-  ],async()=>{
-    const ul=$('f_unit').value,un=units.find(x=>x.label===ul),oldName=existing.name;
-    existing.name=$('f_name').value.trim();
-    existing.role=$('f_role').value;
-    existing.unitId=un?.id||'';
-    existing.unitLabel=ul==='Sin unidad'?'':ul;
-    existing.phone=$('f_phone').value.trim();
-    existing.email=$('f_email').value.trim();
-    existing.status=$('f_status').value;
-    existing=stampEdit(existing);
-    await put('residents',existing);
-
-    for(const d of await all('dues')){
-      if(d.residentId===existing.id){
-        d.residentName=existing.name;d.unitId=existing.unitId;d.unitLabel=existing.unitLabel;
-        await put('dues',stampEdit(d))
-      }
-    }
-    for(const v of await all('visitors')){
-      if(v.residentId===existing.id){
-        v.unitId=existing.unitId;v.unitLabel=existing.unitLabel;
-        if(v.authorizedBy===oldName)v.authorizedBy=existing.name;
-        await put('visitors',stampEdit(v))
-      }
-    }
-    for(const r of await all('reservations')){
-      if(r.residentId===existing.id||r.residentName===oldName){
-        r.residentId=existing.id;r.residentName=existing.name;
-        await put('reservations',stampEdit(r))
-      }
-    }
-    await audit('edit','residents',existing.id,{oldName,newName:existing.name,unitId:existing.unitId})
-  })
-};
-
-window.editUnit=async id=>{
-  let existing=await get('units',id);if(!existing)return;
-  form('Editar unidad',[
-    {id:'label',label:'Unidad',value:existing.label},
-    {id:'type',label:'Tipo',value:existing.type||'Apartamento'},
-    {id:'floor',label:'Bloque / nivel',value:existing.floor||''}
-  ],async()=>{
-    const oldLabel=existing.label;
-    existing.label=$('f_label').value.trim();
-    existing.type=$('f_type').value.trim();
-    existing.floor=$('f_floor').value.trim();
-    existing=stampEdit(existing);
-    await put('units',existing);
-
-    for(const storeName of ['residents','dues','transactions','maintenance','visitors']){
-      for(const row of await all(storeName)){
-        if(row.unitId===existing.id||(!row.unitId&&row.unitLabel===oldLabel)||(storeName==='maintenance'&&row.location===oldLabel)){
-          row.unitId=existing.id;
-          if('unitLabel' in row)row.unitLabel=existing.label;
-          if(storeName==='maintenance'&&row.location===oldLabel)row.location=existing.label;
-          await put(storeName,stampEdit(row))
-        }
-      }
-    }
-    await audit('edit','units',existing.id,{oldLabel,newLabel:existing.label})
-  })
-};
-
-window.previewResidentPortal=async id=>{
-  portalResidentId=id;
-  settings.portalResidentId=id;
-  await put('settings',{...settings,id:'main'});
-  await audit('preview','portal',id);
-  view('portal')
-};
+async function residents(){const q=($('residentSearch').value||'').toLowerCase(),[rs,us,ds]=await Promise.all([all('residents'),all('units'),all('dues')]);const filtered=rs.filter(x=>(x.name+' '+x.phone+' '+x.unitLabel).toLowerCase().includes(q));$('unitGrid').innerHTML=us.map(u=>{const rr=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),pd=ds.filter(d=>d.unitId===u.id||d.unitLabel===u.label).reduce((s,d)=>s+duePending(d),0);return `<div class="unit-card"><div class="unit-top"><div><button class="link title" onclick="openUnit('${u.id}')">${esc(u.label)}</button><div class="meta">${esc(u.type||'Unidad')} · ${rr.length} residente(s)</div></div><div class="balance ${pd>0?'expense':'income'}" data-money>${money(pd)}</div></div><button class="secondary" style="margin-top:9px" onclick="openUnit('${u.id}')">Ver ficha / estado</button></div>`}).join('')||'<div class="empty">No hay unidades creadas.</div>';$('residentList').innerHTML=filtered.map(x=>`<div class="item"><div class="item-main"><div class="title">${esc(x.name)}</div><div class="sub">${esc(x.role)} · ${esc(x.unitLabel||'Sin unidad')} · ${esc(x.phone||'')}</div></div></div>`).join('')||'<div class="empty">Sin residentes.</div>'}
 window.openUnit=id=>{currentUnitId=id;unitTab='account';view('unitProfile')};$('backUnits').onclick=()=>view('residents');document.querySelectorAll('[data-unit-tab]').forEach(b=>b.onclick=()=>{unitTab=b.dataset.unitTab;document.querySelectorAll('[data-unit-tab]').forEach(x=>x.classList.toggle('active',x.dataset.unitTab===unitTab));renderUnitProfile()});
 async function renderUnitProfile(){const u=await get('units',currentUnitId);if(!u){view('residents');return}const [rs,ds,tx,mt,vs]=await Promise.all([all('residents'),all('dues'),all('transactions'),all('maintenance'),all('visitors')]);const residentsU=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),duesU=ds.filter(d=>d.unitId===u.id||d.unitLabel===u.label),txU=tx.filter(t=>t.unitId===u.id||t.unitLabel===u.label),maintU=mt.filter(m=>m.unitId===u.id||m.location===u.label),visU=vs.filter(v=>v.unitId===u.id||v.unitLabel===u.label);const pending=duesU.reduce((s,d)=>s+duePending(d),0),paid=duesU.reduce((s,d)=>s+(+d.amountPaid||0),0);$('unitProfileTitle').textContent=`Unidad ${u.label}`;$('unitProfileSubtitle').textContent=`${u.type||'Unidad'}${u.floor?' · '+u.floor:''}`;$('unitPending').textContent=money(pending);$('unitPaid').textContent=money(paid);$('unitResidentsCount').textContent=residentsU.length;$('unitMaintCount').textContent=maintU.length;let out='';if(unitTab==='account'){out=`<h3>Estado de cuenta</h3><div class="list">${duesU.sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<div class="item"><div><div class="title">${esc(d.month)}</div><div class="sub">Cuota ${money(d.amountDue)} · Mora ${money(d.lateFee||0)} · Pagado ${money(d.amountPaid||0)}</div></div><strong class="${duePending(d)>0?'expense':'income'}" data-money>${money(duePending(d))}</strong></div>`).join('')||'<div class="empty">Sin cuotas.</div>'}</div><h4 style="margin-top:14px">Movimientos</h4><div class="list">${txU.map(t=>`<div class="item"><div><div class="title">${esc(t.concept)}</div><div class="sub">${dateText(t.date)} · ${esc(t.person)}</div></div><strong data-money>${money(t.amount)}</strong></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}</div>`}else if(unitTab==='people'){out=`<h3>Residentes</h3><div class="list">${residentsU.map(r=>`<div class="item"><div><div class="title">${esc(r.name)}</div><div class="sub">${esc(r.role)} · ${esc(r.phone||'')} · ${esc(r.email||'')}</div></div></div>`).join('')||'<div class="empty">Sin residentes.</div>'}</div>`}else if(unitTab==='maintenance'){out=`<h3>Mantenimiento</h3><div class="list">${maintU.map(m=>`<div class="item"><div><div class="title">${esc(m.title)}</div><div class="sub">${esc(m.status)} · ${esc(m.vendorName||'Sin proveedor')} · Costo ${money(m.actualCost||m.estimatedCost||0)}</div></div></div>`).join('')||'<div class="empty">Sin mantenimientos.</div>'}</div>`}else{out=`<h3>Accesos</h3><div class="list">${visU.map(v=>`<div class="item"><div><div class="title">${esc(v.name)}</div><div class="sub">${dateText(v.date)} · Entrada ${esc(v.checkIn||'')} · Salida ${esc(v.checkOut||'Pendiente')} · ${esc(v.vehicle||'')}</div></div></div>`).join('')||'<div class="empty">Sin accesos.</div>'}</div>`}$('unitProfileContent').innerHTML=out}
 $('unitAddPayment').onclick=async()=>{const u=await get('units',currentUnitId);openPaymentForm(u)}
@@ -381,7 +258,6 @@ window.activateUser=async id=>{activeUser=await get('users',id);settings.activeU
 
 async function portal(){
   const r=await ensurePortalResident();
-  if($('portalModeText'))$('portalModeText').textContent=activeUser?.role==='Residente'?'Tu cuenta, servicios y gestiones de la unidad.':'Vista previa administrativa del portal del residente.';
   if(!r){
     $('portalResidentName').textContent='No hay residentes';
     $('portalUnitLabel').textContent='Crea primero residentes y unidades';
@@ -450,10 +326,9 @@ $('portalReserveBtn').onclick=async()=>{const r=await ensurePortalResident();if(
 $('portalMaintenanceBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Solicitar mantenimiento',[{id:'title',label:'Título'},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o=stampNew({id:uid('maint'),title:$('f_title').value,date:today(),unitId:r.unitId||'',location:u?.label||r.unitLabel||'',category:'Solicitud residente',priority:$('f_priority').value,assignedTo:'',vendorName:'',estimatedCost:0,actualCost:0,status:'Abierto',description:$('f_description').value,residentId:r.id});await put('maintenance',o);await audit('create','portal-maintenance',o.id,o)})};
 $('portalVisitorBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Autorizar visitante',[{id:'name',label:'Nombre visitante'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'purpose',label:'Motivo'},{id:'vehicle',label:'Vehículo / placa'}],async()=>{const o=stampNew({id:uid('vis'),name:$('f_name').value,date:$('f_date').value,unitId:r.unitId||'',unitLabel:u?.label||r.unitLabel||'',authorizedBy:r.name,purpose:$('f_purpose').value,vehicle:$('f_vehicle').value,checkIn:'',checkOut:'',preAuthorized:true,residentId:r.id});await put('visitors',o);await audit('authorize','portal-visitor',o.id,o)})};
 $('markNotificationsRead').onclick=async()=>{const r=await ensurePortalResident();for(const n of await all('notifications')){if((!n.residentId||n.residentId===r?.id)&&!n.read){n.read=true;await put('notifications',stampEdit(n))}}await portal();toast('Notificaciones marcadas como leídas')};
-$('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await audit('generate','notifications','manual',{at:new Date().toISOString()});await notifications();toast('Alertas actualizadas')};
+$('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await notifications();toast('Alertas generadas')};
 
-$('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('
-');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
+$('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('\n');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
 $('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,schemaVersion:3};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),700)}
 $('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:6,schemaVersion:3,exportedAt:new Date().toISOString()};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
@@ -463,9 +338,6 @@ $('privacyBtn').onclick=()=>document.body.classList.toggle('money-hidden');windo
   db=await openDB();
   await loadSettings();
   await ensureDefaultUser();
-  for(const a of await all('audit')){
-    if(a.module==='notifications'&&a.action==='generate'&&a.entityId==='automatic') await del('audit',a.id);
-  }
   await backfillSchema();
   await ensurePortalResident();
   await generateAutomaticNotifications();
