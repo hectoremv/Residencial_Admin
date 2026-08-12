@@ -1,4 +1,4 @@
-const CACHE='residencial-admin-v6.4';
+const CACHE='residencial-admin-v6.5';
 const STATIC=['./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 
 self.addEventListener('install',event=>{
