@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v6.3</title>
+<title>Residencial Admin v6.4</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -51,7 +51,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <body>
 <header class="top">
 <button class="icon" id="menuBtn">☰</button>
-<div class="grow"><div class="eyebrow" id="orgType">Administración Residencial</div><h1 id="orgName">Residencial Admin</h1></div>
+<div class="grow"><div class="eyebrow" id="orgType">Administración Residencial · v6.4</div><h1 id="orgName">Residencial Admin</h1></div>
 <div class="top-user" id="activeUserLabel"></div>
 <button class="ghost" id="privacyBtn">👁️</button><button class="ghost" id="installBtn" hidden>Instalar</button>
 </header>
@@ -452,8 +452,7 @@ $('portalVisitorBtn').onclick=async()=>{const r=await ensurePortalResident();if(
 $('markNotificationsRead').onclick=async()=>{const r=await ensurePortalResident();for(const n of await all('notifications')){if((!n.residentId||n.residentId===r?.id)&&!n.read){n.read=true;await put('notifications',stampEdit(n))}}await portal();toast('Notificaciones marcadas como leídas')};
 $('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await audit('generate','notifications','manual',{at:new Date().toISOString()});await notifications();toast('Alertas actualizadas')};
 
-$('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('
-');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
+$('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('refreshReport').onclick=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const t=totals(await all('transactions')),d=await all('dues'),m=await all('maintenance'),txt=[`🏘️ *${settings.organization}*`,`📊 *RESUMEN ADMINISTRATIVO*`,``,`💰 Balance: *${money(t.i-t.e)}*`,`📥 Ingresos: ${money(t.i)}`,`📤 Gastos: ${money(t.e)}`,`🧾 Cuentas por cobrar: ${money(d.reduce((s,q)=>s+duePending(q),0))}`,`🛠️ Órdenes abiertas: ${m.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}`].join('\\n');if(navigator.share)navigator.share({title:settings.organization,text:txt});else navigator.clipboard.writeText(txt)};
 $('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,schemaVersion:3};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),700)}
 $('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:6,schemaVersion:3,exportedAt:new Date().toISOString()};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
@@ -472,7 +471,11 @@ $('privacyBtn').onclick=()=>document.body.classList.toggle('money-hidden');windo
   $('duesMonth').value=ym();
   buildNav();
   await dash();
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{})
+  if('serviceWorker'in navigator){
+    navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'})
+      .then(reg=>reg.update())
+      .catch(()=>{})
+  }
 })();
 </script>
 </body></html>
