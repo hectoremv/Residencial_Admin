@@ -1,6 +1,6 @@
 # Residencial Admin — PWA
 
-**Versión actual:** 7.2  
+**Versión actual:** 7.3  
 **Estado:** PWA local/offline en evolución hacia una plataforma con backend central, app móvil Android (APK) y portal web de escritorio.
 
 ## 1. Propósito
@@ -363,3 +363,10 @@ Antes de cualquier actualización importante:
 4. Verificar Dashboard, Residentes, Tesorería e Informes.
 
 Nunca depender de una sola copia de los datos locales.
+
+
+### v7.3
+- Corrige el error `generateNotifications is not defined` tras eliminar/anular cuotas.
+- Agrega búsqueda en Tesorería por persona, concepto, categoría, unidad, monto y tipo.
+- Corrige el Portal del Residente para mostrar únicamente cuotas, movimientos, reservas, solicitudes y notificaciones vinculadas al residente seleccionado.
+- Mantiene compatibilidad con datos históricos sin `residentId` mediante coincidencia exacta de nombre.

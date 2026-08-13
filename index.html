@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v7.2</title>
+<title>Residencial Admin v7.3</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -70,7 +70,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 @media(min-width:760px){.quick-actions{grid-template-columns:repeat(4,1fr)}.data-health-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:520px){.top-user{display:none}.user-pill{display:none}.header-logo{width:38px;height:38px}}
 
-/* v7.2 safe dues management + report institutional header */
+/* v7.3 safe dues management + report institutional header */
 .report-brand-header{display:grid;grid-template-columns:96px 1fr 96px;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .report-brand-logo{width:92px;height:92px;object-fit:contain;justify-self:start}
 .report-brand-center{text-align:center;min-width:0}
@@ -96,17 +96,21 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
   .report-brand-name{font-size:18pt}
   .report-brand-type{font-size:9pt}
 }
+
+.tx-search-wrap{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:10px}
+.tx-search-wrap input{min-width:0}
+.portal-scope-note{font-size:.78rem;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
 <header class="top">
 <button class="icon" id="menuBtn">☰</button>
 <img id="headerLogo" class="header-logo" alt="Logo">
-<div class="grow"><div class="eyebrow" id="orgType">Administración · v7.2</div><h1 id="orgName">Residencial Admin</h1></div>
+<div class="grow"><div class="eyebrow" id="orgType">Administración · v7.3</div><h1 id="orgName">Residencial Admin</h1></div>
 <div class="user-pill" id="activeUserLabel"></div>
 <button class="ghost" id="privacyBtn">👁️</button><button class="ghost" id="installBtn" hidden>Instalar</button>
 </header>
-<aside class="sidebar" id="sidebar"><div class="head"><strong id="sidebarOrgName">Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav><div class="sidebar-version">Residencial Admin · v7.2 · PWA local</div></aside><div class="overlay" id="overlay"></div>
+<aside class="sidebar" id="sidebar"><div class="head"><strong id="sidebarOrgName">Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav><div class="sidebar-version">Residencial Admin · v7.3 · PWA local</div></aside><div class="overlay" id="overlay"></div>
 <main>
 
 <section id="dashboard" class="view active">
@@ -147,7 +151,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <div class="panel" id="unitProfileContent"></div>
 </section>
 
-<section id="treasury" class="view"><div class="section-head"><div><h2>Tesorería</h2><p>Ingresos, gastos, recibos y caja.</p></div><button class="primary" id="addTx">+ Movimiento</button></div><div class="cards"><div class="card"><span>Ingresos</span><strong id="tIn" data-money></strong></div><div class="card"><span>Gastos</span><strong id="tOut" data-money></strong></div><div class="card"><span>Balance</span><strong id="tBal" data-money></strong></div><div class="card"><span>Patrocinados</span><strong id="tSponsored" data-money></strong></div></div><div class="panel"><div id="txList" class="list"></div></div></section>
+<section id="treasury" class="view"><div class="section-head"><div><h2>Tesorería</h2><p>Ingresos, gastos, recibos y caja.</p></div><button class="primary" id="addTx">+ Movimiento</button></div><div class="cards"><div class="card"><span>Ingresos</span><strong id="tIn" data-money></strong></div><div class="card"><span>Gastos</span><strong id="tOut" data-money></strong></div><div class="card"><span>Balance</span><strong id="tBal" data-money></strong></div><div class="card"><span>Patrocinados</span><strong id="tSponsored" data-money></strong></div></div><div class="panel"><div class="tx-search-wrap"><input id="txSearch" placeholder="Buscar por persona, concepto, categoría, unidad o monto"><button class="secondary" id="clearTxSearch">Limpiar</button></div><div id="txList" class="list"></div></div></section>
 
 <section id="dues" class="view"><div class="section-head"><div><h2>Cuotas y cobros</h2><p>Cuotas mensuales, mora, recargos y pagos.</p></div><div class="actions"><button class="secondary" id="applyLateFees">Aplicar mora</button><button class="primary" id="genDues">Generar cuotas</button></div></div><div class="panel"><div class="filters"><input type="month" id="duesMonth"><button class="secondary" id="recordDuePayment">Registrar pago</button></div><div class="actions" id="dueBulkActions" style="margin:10px 0"><button class="secondary" id="selectAllDues">Seleccionar todas</button><button class="secondary" id="voidSelectedDues">Anular seleccionadas</button><button class="danger-soft" id="deleteSelectedDues">Eliminar definitivamente</button></div><div class="sub" id="dueSelectionInfo" style="margin-bottom:8px">0 cuotas seleccionadas</div><div id="duesList" class="list"></div></div></section>
 
@@ -171,7 +175,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
   <div class="portal-hero">
     <span id="portalResidentName">Residente</span>
     <strong id="portalUnitLabel">Sin unidad</strong>
-    <small id="portalAccountStatus">Estado de cuenta</small>
+    <small id="portalAccountStatus">Estado de cuenta</small><div class="portal-scope-note" id="portalScopeNote"></div>
   </div>
   <div class="portal-grid">
     <div class="portal-card"><span>Balance pendiente</span><strong id="portalPending" data-money>RD$0.00</strong></div>
@@ -571,14 +575,37 @@ window.openUnit=id=>{currentUnitId=id;unitTab='account';view('unitProfile')};$('
 async function renderUnitProfile(){const u=await get('units',currentUnitId);if(!u){view('residents');return}const [rs,ds,tx,mt,vs]=await Promise.all([all('residents'),all('dues'),all('transactions'),all('maintenance'),all('visitors')]);const residentsU=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),duesU=ds.filter(d=>d.status!=='void'&&(d.unitId===u.id||d.unitLabel===u.label)),txU=tx.filter(t=>t.unitId===u.id||t.unitLabel===u.label),maintU=mt.filter(m=>m.unitId===u.id||m.location===u.label),visU=vs.filter(v=>v.unitId===u.id||v.unitLabel===u.label);const pending=duesU.reduce((s,d)=>s+duePending(d),0),paid=duesU.reduce((s,d)=>s+(+d.amountPaid||0),0);$('unitProfileTitle').textContent=`Unidad ${u.label}`;$('unitProfileSubtitle').textContent=`${u.type||'Unidad'}${u.floor?' · '+u.floor:''}`;$('unitPending').textContent=money(pending);$('unitPaid').textContent=money(paid);$('unitResidentsCount').textContent=residentsU.length;$('unitMaintCount').textContent=maintU.length;let out='';if(unitTab==='account'){out=`<h3>Estado de cuenta</h3><div class="list">${duesU.sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<div class="item"><div><div class="title">${esc(d.month)}</div><div class="sub">Cuota ${money(d.amountDue)} · Mora ${money(d.lateFee||0)} · Pagado ${money(d.amountPaid||0)}</div></div><strong class="${duePending(d)>0?'expense':'income'}" data-money>${money(duePending(d))}</strong></div>`).join('')||'<div class="empty">Sin cuotas.</div>'}</div><h4 style="margin-top:14px">Movimientos</h4><div class="list">${txU.map(t=>`<div class="item"><div><div class="title">${esc(t.concept)}</div><div class="sub">${dateText(t.date)} · ${esc(t.person)}</div></div><strong data-money>${money(t.amount)}</strong></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}</div>`}else if(unitTab==='people'){out=`<h3>Residentes</h3><div class="list">${residentsU.map(r=>`<div class="item"><div><div class="title">${esc(r.name)}</div><div class="sub">${esc(r.role)} · ${esc(r.phone||'')} · ${esc(r.email||'')}</div></div></div>`).join('')||'<div class="empty">Sin residentes.</div>'}</div>`}else if(unitTab==='maintenance'){out=`<h3>Mantenimiento</h3><div class="list">${maintU.map(m=>`<div class="item"><div><div class="title">${esc(m.title)}</div><div class="sub">${esc(m.status)} · ${esc(m.vendorName||'Sin proveedor')} · Costo ${money(m.actualCost||m.estimatedCost||0)}</div></div></div>`).join('')||'<div class="empty">Sin mantenimientos.</div>'}</div>`}else{out=`<h3>Accesos</h3><div class="list">${visU.map(v=>`<div class="item"><div><div class="title">${esc(v.name)}</div><div class="sub">${dateText(v.date)} · Entrada ${esc(v.checkIn||'')} · Salida ${esc(v.checkOut||'Pendiente')} · ${esc(v.vehicle||'')}</div></div></div>`).join('')||'<div class="empty">Sin accesos.</div>'}</div>`}$('unitProfileContent').innerHTML=out}
 $('unitAddPayment').onclick=async()=>{const u=await get('units',currentUnitId);openPaymentForm(u)}
 
-async function treasury(){const t=await all('transactions'),x=totals(t);$('tIn').textContent=money(x.i);$('tOut').textContent=money(x.e);$('tBal').textContent=money(x.i-x.e);$('tSponsored').textContent=money(x.s);$('txList').innerHTML=t.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(q=>`<div class="item"><div><div class="title">${esc(q.concept)} ${q.status==='void'?'<span class="badge danger">ANULADO</span>':''}</div><div class="sub">${dateText(q.date)} · ${esc(q.person)}${q.unitLabel?' · '+esc(q.unitLabel):''}</div></div><div><div class="amount ${q.type}" data-money>${money(q.amount)}</div>${q.status!=='void'?`<button class="ghost" style="margin-top:6px" onclick="voidTx('${q.id}')">Anular</button>`:''}</div></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}
-window.voidTx=async id=>{const tx=await get('transactions',id);if(!tx||tx.status==='void')return;if(!confirm(`¿Anular el movimiento "${tx.concept}" por ${money(tx.amount)}?\\n\\nEl registro se conservará en auditoría.`))return;tx.status='void';tx.voidedAt=new Date().toISOString();tx.voidedBy=actor();await put('transactions',stampEdit(tx));await audit('void','treasury',id,{amount:tx.amount,concept:tx.concept});await treasury();await dash();toast('Movimiento anulado')}
+
+async function treasury(){
+  const allTx=await all('transactions'),
+        q=($('txSearch')?.value||'').trim().toLowerCase(),
+        filtered=allTx.filter(x=>{
+          if(!q)return true;
+          const text=`${x.person||''} ${x.concept||''} ${x.category||''} ${x.unitLabel||''} ${x.amount||''} ${x.type||''}`.toLowerCase();
+          return text.includes(q)
+        }),
+        totalsAll=totals(allTx);
+  $('tIn').textContent=money(totalsAll.i);
+  $('tOut').textContent=money(totalsAll.e);
+  $('tBal').textContent=money(totalsAll.i-totalsAll.e);
+  $('tSponsored').textContent=money(totalsAll.s);
+  $('txList').innerHTML=filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(q=>`<div class="item">
+    <div>
+      <div class="title">${esc(q.concept)} ${q.status==='void'?'<span class="badge danger">ANULADO</span>':''}</div>
+      <div class="sub">${dateText(q.date)} · ${esc(q.person)}${q.unitLabel?' · '+esc(q.unitLabel):''}</div>
+    </div>
+    <div>
+      <div class="amount ${q.type}" data-money>${money(q.amount)}</div>
+      ${q.status!=='void'?`<button class="ghost" style="margin-top:6px" onclick="voidTx('${q.id}')">Anular</button>`:''}
+    </div>
+  </div>`).join('')||'<div class="empty">Sin movimientos que coincidan con la búsqueda.</div>'
+}
 async function dues(){const m=$('duesMonth').value||ym(),d=(await all('dues')).filter(x=>x.month===m);$('duesList').innerHTML=d.map(x=>`<div class="item" style="${x.status==='void'?'opacity:.62':''}"><label style="display:flex;gap:10px;align-items:flex-start;flex:1;cursor:pointer"><input class="due-check" type="checkbox" value="${esc(x.id)}" style="width:20px;height:20px;margin-top:2px"><div><div class="title">${esc(x.unitLabel||x.residentName)}</div><div class="sub">Cuota ${money(x.amountDue)} · Mora ${money(x.lateFee||0)} · Pagado ${money(x.amountPaid||0)}</div><span class="badge ${x.status==='void'?'danger':duePending(x)>0?'warn':''}">${x.status==='void'?'Anulada':duePending(x)>0?'Pendiente':'Pagado'}</span></div></label><strong class="${x.status==='void'?'':duePending(x)>0?'expense':'income'}" data-money>${x.status==='void'?'—':money(duePending(x))}</strong></div>`).join('')||'<div class="empty">Sin cuotas.</div>';document.querySelectorAll('.due-check').forEach(c=>c.onchange=updateDueSelection);updateDueSelection()}
 function selectedDueIds(){return [...document.querySelectorAll('.due-check:checked')].map(x=>x.value)}
 function updateDueSelection(){const n=selectedDueIds().length;if($('dueSelectionInfo'))$('dueSelectionInfo').textContent=`${n} cuota${n===1?'':'s'} seleccionada${n===1?'':'s'}`}
 async function selectedDues(){const ids=new Set(selectedDueIds());return (await all('dues')).filter(d=>ids.has(d.id))}
-async function voidDuesBulk(){const rows=await selectedDues();if(!rows.length){alert('Selecciona al menos una cuota.');return}const blocked=rows.filter(d=>(+d.amountPaid||0)>0);if(blocked.length){alert(`${blocked.length} cuota(s) tienen pagos o abonos. Primero debes revertir esos pagos antes de anular la cuota.`);return}const total=rows.reduce((s,d)=>s+(+d.amountDue||0)+(+d.lateFee||0),0),reason=prompt(`Vas a ANULAR ${rows.length} cuota(s) por ${money(total)}.\n\nDejarán de contar como deuda, pero permanecerán en el historial.\n\nIndica el motivo de la anulación:`);if(!reason?.trim())return;if(!confirm(`Confirmar anulación de ${rows.length} cuota(s) por ${money(total)}?`))return;for(const d of rows){d.status='void';d.voidedAt=new Date().toISOString();d.voidedBy=actor();d.voidReason=reason.trim();await put('dues',stampEdit(d));await audit('void','dues',d.id,{month:d.month,amount:d.amountDue,reason:d.voidReason})}await dues();await generateNotifications();toast(`${rows.length} cuota(s) anulada(s)`)}
-async function deleteDuesBulk(){if(activeUser?.role!=='Administrador'){alert('Solo un Administrador puede eliminar cuotas definitivamente. Usa Anular para conservar el historial.');return}const rows=await selectedDues();if(!rows.length){alert('Selecciona al menos una cuota.');return}const blocked=rows.filter(d=>(+d.amountPaid||0)>0||(+d.lateFee||0)>0||d.lateApplied);if(blocked.length){alert(`${blocked.length} cuota(s) tienen pagos, abonos o recargos relacionados y no pueden eliminarse definitivamente. Puedes anularlas para conservar la trazabilidad.`);return}const total=rows.reduce((s,d)=>s+(+d.amountDue||0),0);if(!confirm(`ELIMINACIÓN DEFINITIVA\n\nSe eliminarán ${rows.length} cuota(s) por ${money(total)}.\nEsta acción no se puede deshacer.\n\n¿Continuar?`))return;for(const d of rows){await audit('delete','dues',d.id,{month:d.month,amount:d.amountDue,reason:'Eliminación definitiva autorizada'});await del('dues',d.id)}await dues();await generateNotifications();toast(`${rows.length} cuota(s) eliminada(s)`)}
+async function voidDuesBulk(){const rows=await selectedDues();if(!rows.length){alert('Selecciona al menos una cuota.');return}const blocked=rows.filter(d=>(+d.amountPaid||0)>0);if(blocked.length){alert(`${blocked.length} cuota(s) tienen pagos o abonos. Primero debes revertir esos pagos antes de anular la cuota.`);return}const total=rows.reduce((s,d)=>s+(+d.amountDue||0)+(+d.lateFee||0),0),reason=prompt(`Vas a ANULAR ${rows.length} cuota(s) por ${money(total)}.\n\nDejarán de contar como deuda, pero permanecerán en el historial.\n\nIndica el motivo de la anulación:`);if(!reason?.trim())return;if(!confirm(`Confirmar anulación de ${rows.length} cuota(s) por ${money(total)}?`))return;for(const d of rows){d.status='void';d.voidedAt=new Date().toISOString();d.voidedBy=actor();d.voidReason=reason.trim();await put('dues',stampEdit(d));await audit('void','dues',d.id,{month:d.month,amount:d.amountDue,reason:d.voidReason})}await dues();await generateAutomaticNotifications();toast(`${rows.length} cuota(s) anulada(s)`)}
+async function deleteDuesBulk(){if(activeUser?.role!=='Administrador'){alert('Solo un Administrador puede eliminar cuotas definitivamente. Usa Anular para conservar el historial.');return}const rows=await selectedDues();if(!rows.length){alert('Selecciona al menos una cuota.');return}const blocked=rows.filter(d=>(+d.amountPaid||0)>0||(+d.lateFee||0)>0||d.lateApplied);if(blocked.length){alert(`${blocked.length} cuota(s) tienen pagos, abonos o recargos relacionados y no pueden eliminarse definitivamente. Puedes anularlas para conservar la trazabilidad.`);return}const total=rows.reduce((s,d)=>s+(+d.amountDue||0),0);if(!confirm(`ELIMINACIÓN DEFINITIVA\n\nSe eliminarán ${rows.length} cuota(s) por ${money(total)}.\nEsta acción no se puede deshacer.\n\n¿Continuar?`))return;for(const d of rows){await audit('delete','dues',d.id,{month:d.month,amount:d.amountDue,reason:'Eliminación definitiva autorizada'});await del('dues',d.id)}await dues();await generateAutomaticNotifications();toast(`${rows.length} cuota(s) eliminada(s)`)}
 async function maintenance(){const d=await all('maintenance');$('maintList').innerHTML=d.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(x=>`<div class="item"><div><div class="title">${esc(x.title)}</div><div class="sub">${dateText(x.date)} · ${esc(x.location||'Área común')} · ${esc(x.priority)} · ${esc(x.assignedTo||'Sin asignar')}</div><span class="badge">${esc(x.status)}</span>${x.vendorName?` <span class="badge blue">${esc(x.vendorName)}</span>`:''}</div><div class="amount" data-money>${money(x.actualCost||x.estimatedCost||0)}</div></div>`).join('')||'<div class="empty">Sin órdenes de trabajo.</div>'}
 async function security(){const [i,v]=await Promise.all([all('incidents'),all('visitors')]);$('visitorList').innerHTML=v.sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).map(x=>`<div class="item"><div><div class="title">${esc(x.name)} ${x.checkOut?'':'🟢'}</div><div class="sub">${dateText(x.date)} · ${esc(x.unitLabel||'')} · Entrada ${esc(x.checkIn||'')} · Salida ${esc(x.checkOut||'Pendiente')} · ${esc(x.vehicle||'')}</div></div>${!x.checkOut?`<button class="secondary" onclick="checkoutVisitor('${x.id}')">Registrar salida</button>`:''}</div>`).join('')||'<div class="empty">Sin visitantes.</div>';$('incidentList').innerHTML=i.map(x=>`<div class="item"><div><div class="title">${esc(x.title)}</div><div class="sub">${dateText(x.date)} · ${esc(x.location)} · ${esc(x.severity)}</div></div></div>`).join('')||'<div class="empty">Sin incidentes.</div>'}
 window.checkoutVisitor=async id=>{const v=await get('visitors',id);v.checkOut=new Date().toLocaleTimeString('es-DO',{hour:'2-digit',minute:'2-digit'});await put('visitors',v);await audit('checkout','security',id,v);security();toast('Salida registrada')}
@@ -593,39 +620,98 @@ async function audits(){const d=await all('audit');$('auditList').innerHTML=d.so
 async function users(){const d=await all('users');$('userList').innerHTML=d.map(x=>`<div class="role-card"><h4>${esc(x.name)}</h4><p>${esc(x.role)}${activeUser?.id===x.id?' · Usuario activo':''}</p><div class="actions" style="margin-top:8px"><button class="secondary" onclick="activateUser('${x.id}')">Usar perfil</button></div></div>`).join('')}
 window.activateUser=async id=>{activeUser=await get('users',id);settings.activeUserId=id;await put('settings',settings);$('activeUserLabel').textContent=`${activeUser.name} · ${activeUser.role}`;buildNav();view('dashboard');toast('Perfil activado')}
 
+
 async function portal(){
   const r=await ensurePortalResident();
   if($('portalModeText'))$('portalModeText').textContent=activeUser?.role==='Residente'?'Tu cuenta, servicios y gestiones de la unidad.':'Vista previa administrativa del portal del residente.';
+
   if(!r){
     $('portalResidentName').textContent='No hay residentes';
-    $('portalUnitLabel').textContent='Crea primero residentes y unidades';
+    $('portalUnitLabel').textContent='Crea primero residentes';
+    $('portalAccountStatus').textContent='Sin información';
+    $('portalScopeNote').textContent='';
     $('portalStatement').innerHTML='<div class="empty">Sin información.</div>';
     $('portalNotifications').innerHTML='<div class="empty">Sin notificaciones.</div>';
     return
   }
+
   const [u,duesRows,txRows,resvRows,maintRows,notifs]=await Promise.all([
-    r.unitId?get('units',r.unitId):Promise.resolve(null),all('dues'),all('transactions'),all('reservations'),all('maintenance'),all('notifications')
+    r.unitId?get('units',r.unitId):Promise.resolve(null),
+    all('dues'),all('transactions'),all('reservations'),all('maintenance'),all('notifications')
   ]);
+
   const unitLabel=u?.label||r.unitLabel||'Sin unidad';
-  const unitDues=duesRows.filter(d=>d.status!=='void'&&(d.residentId===r.id||(r.unitId&&d.unitId===r.unitId)||(r.unitLabel&&d.unitLabel===r.unitLabel))).sort((a,b)=>(b.month||'').localeCompare(a.month||''));
-  const unitTx=txRows.filter(t=>t.unitId===r.unitId||(r.unitLabel&&t.unitLabel===r.unitLabel)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  const pending=unitDues.reduce((s,d)=>s+duePending(d),0);
+
+  // Se prioriza residentId. Para datos antiguos sin residentId se usa coincidencia exacta de nombre.
+  const residentDues=duesRows
+    .filter(d=>d.status!=='void' && (
+      d.residentId===r.id ||
+      (!d.residentId && normText(d.residentName)===normText(r.name))
+    ))
+    .sort((a,b)=>(b.month||'').localeCompare(a.month||''));
+
+  const residentTx=txRows
+    .filter(t=>t.status!=='void' && (
+      t.residentId===r.id ||
+      (!t.residentId && normText(t.person)===normText(r.name))
+    ))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+  const residentResv=resvRows.filter(x=>
+    x.residentId===r.id ||
+    (!x.residentId && normText(x.residentName)===normText(r.name))
+  );
+
+  const residentMaint=maintRows.filter(x=>x.residentId===r.id);
+
+  const pending=residentDues.reduce((s,d)=>s+duePending(d),0);
   const year=today().slice(0,4);
-  const paidYear=unitTx.filter(t=>t.type==='income'&&String(t.date||'').startsWith(year)).reduce((s,t)=>s+(+t.amount||0),0);
+  const paidYear=residentTx
+    .filter(t=>t.type==='income'&&String(t.date||'').startsWith(year))
+    .reduce((s,t)=>s+(+t.amount||0),0);
+
   $('portalResidentName').textContent=r.name;
   $('portalUnitLabel').textContent=unitLabel;
   $('portalAccountStatus').textContent=pending>0?'Cuenta con balance pendiente':'Cuenta al día';
+  $('portalScopeNote').textContent='Mostrando únicamente información vinculada a este residente.';
   $('portalPending').textContent=money(pending);
   $('portalPaidYear').textContent=money(paidYear);
-  $('portalReservations').textContent=resvRows.filter(x=>x.residentName===r.name&&!['Cancelada','Completada'].includes(x.status)).length;
-  $('portalMaintenance').textContent=maintRows.filter(x=>x.unitId===r.unitId&&!['Completado','Cancelado'].includes(x.status)).length;
+  $('portalReservations').textContent=residentResv.filter(x=>!['Cancelada','Completada'].includes(x.status)).length;
+  $('portalMaintenance').textContent=residentMaint.filter(x=>!['Completado','Cancelado'].includes(x.status)).length;
+
   const statement=[
-    ...unitDues.map(d=>({date:`${d.month}-01`,label:`Cuota ${d.month}${d.lateFee?' + mora':''}`,amount:(+d.amountDue||0)+(+d.lateFee||0),kind:'debit'})),
-    ...unitTx.filter(t=>t.type==='income').map(t=>({date:t.date,label:t.concept||'Pago',amount:+t.amount||0,kind:'credit'}))
+    ...residentDues.map(d=>({
+      date:`${d.month}-01`,
+      label:`Cuota ${d.month}${d.lateFee?' + mora':''}`,
+      amount:(+d.amountDue||0)+(+d.lateFee||0),
+      kind:'debit'
+    })),
+    ...residentTx.filter(t=>t.type==='income').map(t=>({
+      date:t.date,
+      label:t.concept||'Pago',
+      amount:+t.amount||0,
+      kind:'credit'
+    }))
   ].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  $('portalStatement').innerHTML=statement.map(x=>`<div class="statement-row"><div><div class="title">${esc(x.label)}</div><div class="sub">${dateText(x.date)}</div></div><div class="${x.kind==='debit'?'statement-debit':'statement-credit'}" data-money>${x.kind==='debit'?'+':'-'}${money(x.amount)}</div></div>`).join('')||'<div class="empty">Sin movimientos en el estado de cuenta.</div>';
-  const myNotifs=notifs.filter(n=>(!n.residentId||n.residentId===r.id)&&!n.archived).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-  $('portalNotifications').innerHTML=myNotifs.slice(0,20).map(n=>`<div class="notification-card ${n.read?'':'unread'}"><h4>${esc(n.title)}</h4><p>${esc(n.body)}</p><div class="sub">${dateText(n.date)} · ${esc(n.type)}</div></div>`).join('')||'<div class="empty">No tienes notificaciones.</div>'
+
+  $('portalStatement').innerHTML=statement.map(x=>`<div class="statement-row">
+    <div><div class="title">${esc(x.label)}</div><div class="sub">${dateText(x.date)}</div></div>
+    <div class="${x.kind==='debit'?'statement-debit':'statement-credit'}" data-money>${x.kind==='debit'?'+':'-'}${money(x.amount)}</div>
+  </div>`).join('')||'<div class="empty">Sin movimientos para este residente.</div>';
+
+  const residentNotifs=notifs
+    .filter(n=>!n.archived && (
+      n.residentId===r.id ||
+      (!n.residentId && n.unitId && r.unitId && n.unitId===r.unitId) ||
+      (!n.residentId && !n.unitId)
+    ))
+    .sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
+
+  $('portalNotifications').innerHTML=residentNotifs.slice(0,20).map(n=>`<div class="notification-card ${n.read?'':'unread'}">
+    <h4>${esc(n.title)}</h4>
+    <p>${esc(n.body)}</p>
+    <div class="sub">${dateText(n.date)} · ${esc(n.type)}</div>
+  </div>`).join('')||'<div class="empty">No tienes notificaciones.</div>'
 }
 async function notifications(){
   const rows=(await all('notifications')).filter(n=>!n.archived).sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
@@ -750,10 +836,22 @@ $('portalPayBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)r
 $('portalReserveBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;form('Nueva reserva',[{id:'area',label:'Área'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'time',label:'Horario'},{id:'status',label:'Estado',type:'select',options:['Solicitada','Confirmada']}],async()=>{const o=stampNew({id:uid('resv'),area:$('f_area').value,date:$('f_date').value,time:$('f_time').value,residentId:r.id,residentName:r.name,unitId:r.unitId||'',status:$('f_status').value});await put('reservations',o);await audit('create','portal-reservation',o.id,o)})};
 $('portalMaintenanceBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Solicitar mantenimiento',[{id:'title',label:'Título'},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o=stampNew({id:uid('maint'),title:$('f_title').value,date:today(),unitId:r.unitId||'',location:u?.label||r.unitLabel||'',category:'Solicitud residente',priority:$('f_priority').value,assignedTo:'',vendorName:'',estimatedCost:0,actualCost:0,status:'Abierto',description:$('f_description').value,residentId:r.id});await put('maintenance',o);await audit('create','portal-maintenance',o.id,o)})};
 $('portalVisitorBtn').onclick=async()=>{const r=await ensurePortalResident();if(!r)return;const u=r.unitId?await get('units',r.unitId):null;form('Autorizar visitante',[{id:'name',label:'Nombre visitante'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'purpose',label:'Motivo'},{id:'vehicle',label:'Vehículo / placa'}],async()=>{const o=stampNew({id:uid('vis'),name:$('f_name').value,date:$('f_date').value,unitId:r.unitId||'',unitLabel:u?.label||r.unitLabel||'',authorizedBy:r.name,purpose:$('f_purpose').value,vehicle:$('f_vehicle').value,checkIn:'',checkOut:'',preAuthorized:true,residentId:r.id});await put('visitors',o);await audit('authorize','portal-visitor',o.id,o)})};
-$('markNotificationsRead').onclick=async()=>{const r=await ensurePortalResident();for(const n of await all('notifications')){if((!n.residentId||n.residentId===r?.id)&&!n.read){n.read=true;await put('notifications',stampEdit(n))}}await portal();toast('Notificaciones marcadas como leídas')};
+$('markNotificationsRead').onclick=async()=>{
+  const r=await ensurePortalResident();
+  for(const n of await all('notifications')){
+    const belongs=r && (
+      n.residentId===r.id ||
+      (!n.residentId&&n.unitId&&r.unitId&&n.unitId===r.unitId) ||
+      (!n.residentId&&!n.unitId)
+    );
+    if(belongs&&!n.read){n.read=true;await put('notifications',stampEdit(n))}
+  }
+  await portal();
+  toast('Notificaciones marcadas como leídas')
+};
 $('generateNotificationsBtn').onclick=async()=>{await generateAutomaticNotifications();await audit('generate','notifications','manual',{at:new Date().toISOString()});await notifications();toast('Alertas actualizadas')};
 
-$('residentSearch').oninput=residents;$('duesMonth').onchange=dues;$('selectAllDues').onclick=()=>{const cs=[...document.querySelectorAll('.due-check')],allOn=cs.length&&cs.every(c=>c.checked);cs.forEach(c=>c.checked=!allOn);updateDueSelection()};$('voidSelectedDues').onclick=voidDuesBulk;$('deleteSelectedDues').onclick=deleteDuesBulk;document.querySelectorAll('[data-report-type]').forEach(b=>b.onclick=()=>{currentReportType=b.dataset.reportType;document.querySelectorAll('[data-report-type]').forEach(x=>x.classList.toggle('active',x.dataset.reportType===currentReportType));report()});$('refreshReport').onclick=report;$('reportFrom').onchange=report;$('reportTo').onchange=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const txt=await buildReportShareText();if(navigator.share)await navigator.share({title:settings.organization,text:txt});else{await navigator.clipboard.writeText(txt);toast('Reporte copiado')}};$('exportReportCsv').onclick=exportCurrentReportCsv;
+$('residentSearch').oninput=residents;$('txSearch').oninput=treasury;$('clearTxSearch').onclick=()=>{$('txSearch').value='';treasury()};$('duesMonth').onchange=dues;$('selectAllDues').onclick=()=>{const cs=[...document.querySelectorAll('.due-check')],allOn=cs.length&&cs.every(c=>c.checked);cs.forEach(c=>c.checked=!allOn);updateDueSelection()};$('voidSelectedDues').onclick=voidDuesBulk;$('deleteSelectedDues').onclick=deleteDuesBulk;document.querySelectorAll('[data-report-type]').forEach(b=>b.onclick=()=>{currentReportType=b.dataset.reportType;document.querySelectorAll('[data-report-type]').forEach(x=>x.classList.toggle('active',x.dataset.reportType===currentReportType));report()});$('refreshReport').onclick=report;$('reportFrom').onchange=report;$('reportTo').onchange=report;$('printReport').onclick=()=>window.print();$('shareReport').onclick=async()=>{const txt=await buildReportShareText();if(navigator.share)await navigator.share({title:settings.organization,text:txt});else{await navigator.clipboard.writeText(txt);toast('Reporte copiado')}};$('exportReportCsv').onclick=exportCurrentReportCsv;
 
 $('orgLogoInput').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>1500000){alert('El logo debe pesar menos de 1.5 MB.');e.target.value='';return}const reader=new FileReader();reader.onload=async()=>{settings.logoDataUrl=reader.result;await put('settings',{...settings,id:'main'});await loadSettings();await audit('edit','branding','logo');toast('Logo guardado')};reader.readAsDataURL(f);e.target.value=''};
 $('removeLogoBtn').onclick=async()=>{settings.logoDataUrl='';await put('settings',{...settings,id:'main'});await loadSettings();await audit('edit','branding','logo-remove');toast('Logo eliminado')};
