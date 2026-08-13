@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v6.6</title>
+<title>Residencial Admin v7.0</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -52,23 +52,61 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 .logo-preview{width:96px;height:96px;object-fit:contain;border:1px dashed var(--line);border-radius:14px;background:#fff;padding:5px}.brand-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.report-logo{max-width:110px;max-height:90px;object-fit:contain;margin-bottom:8px}
 .boot-error{position:fixed;z-index:999;inset:12px;top:auto;background:#fff1f0;border:1px solid #ffc9c2;color:#7a271a;border-radius:14px;padding:12px;box-shadow:0 10px 30px #0002}
 @media(min-width:760px){.report-type-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* v7 audit improvements */
+.header-logo{width:42px;height:42px;object-fit:contain;border-radius:10px;background:#fff;display:none}
+.user-pill{max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:7px 9px;border:1px solid var(--line);border-radius:999px;background:#fbfdfc;font-size:.74rem}
+.quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.quick-actions button{text-align:left;min-height:58px}
+.health-strip{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.health-ok{background:#e9f8f0;color:#087f5b}.health-warn{background:#fff4df;color:#8a5700}.health-bad{background:#fff0ee;color:#b42318}
+.kpi-small{font-size:.78rem;color:var(--muted);margin-top:4px}
+.audit-friendly .title{font-size:.95rem}
+.admin-note{background:#f7faf9;border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--muted);font-size:.86rem}
+.data-health-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.data-health-grid .mini{min-height:82px}
+.report-brand-contact{font-size:.82rem;color:var(--muted);margin-top:-4px;margin-bottom:10px}
+.sidebar-version{padding:12px 20px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--line)}
+@media(min-width:760px){.quick-actions{grid-template-columns:repeat(4,1fr)}.data-health-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:520px){.top-user{display:none}.user-pill{display:none}.header-logo{width:38px;height:38px}}
 </style>
 </head>
 <body>
 <header class="top">
 <button class="icon" id="menuBtn">☰</button>
-<div class="grow"><div class="eyebrow" id="orgType">Administración Residencial · v6.6</div><h1 id="orgName">Residencial Admin</h1></div>
-<div class="top-user" id="activeUserLabel"></div>
+<img id="headerLogo" class="header-logo" alt="Logo">
+<div class="grow"><div class="eyebrow" id="orgType">Administración · v7.0</div><h1 id="orgName">Residencial Admin</h1></div>
+<div class="user-pill" id="activeUserLabel"></div>
 <button class="ghost" id="privacyBtn">👁️</button><button class="ghost" id="installBtn" hidden>Instalar</button>
 </header>
-<aside class="sidebar" id="sidebar"><div class="head"><strong>Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav></aside><div class="overlay" id="overlay"></div>
+<aside class="sidebar" id="sidebar"><div class="head"><strong id="sidebarOrgName">Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav><div class="sidebar-version">Residencial Admin · v7.0 · PWA local</div></aside><div class="overlay" id="overlay"></div>
 <main>
+
 <section id="dashboard" class="view active">
 <div class="hero"><span>Balance disponible</span><strong id="dashBalance" data-money>RD$0.00</strong><small id="backupState">Sin respaldo</small></div>
-<div class="cards"><div class="card"><span>Unidades</span><strong id="dashUnits">0</strong></div><div class="card"><span>Residentes</span><strong id="dashResidents">0</strong></div><div class="card"><span>Cuentas por cobrar</span><strong id="dashPending" data-money>RD$0.00</strong></div><div class="card"><span>Órdenes abiertas</span><strong id="dashMaint">0</strong></div></div>
+<div class="cards">
+  <div class="card"><span>Unidades</span><strong id="dashUnits">0</strong><div class="kpi-small" id="dashUnitsNote">Registradas</div></div>
+  <div class="card"><span>Residentes</span><strong id="dashResidents">0</strong><div class="kpi-small">Activos</div></div>
+  <div class="card"><span>Cuentas por cobrar</span><strong id="dashPending" data-money>RD$0.00</strong><div class="kpi-small" id="dashPendingNote">Saldo pendiente</div></div>
+  <div class="card"><span>Órdenes abiertas</span><strong id="dashMaint">0</strong><div class="kpi-small">Mantenimiento</div></div>
+</div>
+<div class="cards">
+  <div class="card"><span>Ingresos del mes</span><strong id="dashMonthIn" data-money>RD$0.00</strong></div>
+  <div class="card"><span>Gastos del mes</span><strong id="dashMonthOut" data-money>RD$0.00</strong></div>
+  <div class="card"><span>Alertas sin leer</span><strong id="dashUnread">0</strong></div>
+  <div class="card"><span>Estado de datos</span><strong id="dashHealth">OK</strong><div class="kpi-small" id="dashHealthNote">Sin incidencias críticas</div></div>
+</div>
+<div class="quick-actions">
+  <button class="primary" id="quickTx">💰 Registrar movimiento</button>
+  <button class="secondary" id="quickResident">👤 Nuevo residente</button>
+  <button class="secondary" id="quickPayment">🧾 Registrar pago</button>
+  <button class="secondary" id="quickNotice">📣 Publicar aviso</button>
+</div>
+<div class="health-strip" id="dashboardHealthStrip"></div>
 <div class="modules" id="moduleGrid"></div>
-<div class="panel"><div class="panel-head"><h3>Actividad reciente</h3></div><div id="recent" class="list"></div></div>
+<div class="panel"><div class="panel-head"><h3>Actividad reciente</h3><button class="ghost" id="goAudit">Ver auditoría</button></div><div id="recent" class="list audit-friendly"></div></div>
 </section>
+
 
 <section id="residents" class="view">
 <div class="section-head"><div><h2>Residentes y unidades</h2><p>Directorio, perfiles de unidad y estado de cuenta.</p></div><div class="actions"><button class="secondary" id="addUnit">+ Unidad</button><button class="primary" id="addResident">+ Residente</button></div></div>
@@ -156,10 +194,28 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 
 <section id="admin" class="view">
 <div class="section-head"><div><h2>Administración</h2><p>Configuración, usuarios, roles, respaldo y auditoría.</p></div></div>
-<div class="panel"><div class="form two"><label>Nombre de la organización<input id="sOrg"></label><label>Tipo<select id="sType"><option>Condominio</option><option>Residencial</option><option>Junta de Vecinos</option><option>Asociación</option></select></label><label>Administrador / Tesorero<input id="sManager"></label><label>Cuota mensual RD$<input id="sDue" type="number"></label><label>Días de gracia<input id="sGrace" type="number" min="0"></label><label>Mora / recargo % mensual<input id="sLatePct" type="number" min="0" step="0.1"></label><button class="primary" id="saveSettings">Guardar configuración</button></div></div>
+<div class="panel">
+<div class="panel-head"><h3>Organización y cobranza</h3><span class="badge blue">Configuración general</span></div>
+<div class="form two">
+<label>Nombre de la organización<input id="sOrg"></label>
+<label>Tipo<select id="sType"><option>Condominio</option><option>Residencial</option><option>Junta de Vecinos</option><option>Asociación</option></select></label>
+<label>Administrador / Tesorero<input id="sManager"></label>
+<label>Cobrar cuotas por<select id="sBillingBasis"><option value="resident">Residente / miembro</option><option value="unit">Unidad / propiedad</option></select></label>
+<label>Cuota mensual RD$<input id="sDue" type="number"></label>
+<label>Días de gracia<input id="sGrace" type="number" min="0"></label>
+<label>Mora / recargo % mensual<input id="sLatePct" type="number" min="0" step="0.1"></label>
+<label>Registro / RNC / identificación<input id="sLegalId"></label>
+<label>Teléfono institucional<input id="sOrgPhone"></label>
+<label>Correo institucional<input id="sOrgEmail" type="email"></label>
+<label>Dirección<input id="sAddress"></label>
+<label>Eslogan<input id="sSlogan"></label>
+<button class="primary" id="saveSettings">Guardar configuración</button>
+</div>
+<div class="admin-note">Para juntas o asociaciones sin apartamentos definidos, usa <strong>Residente / miembro</strong>. Para condominios y residenciales con apartamentos/casas, usa <strong>Unidad / propiedad</strong>.</div>
+</div>
 
 <div class="panel">
-  <div class="panel-head"><h3>Arquitectura y sincronización</h3><span class="badge blue">Versión v6.3</span></div>
+  <div class="panel-head"><h3>Arquitectura y sincronización</h3><span class="badge blue">Versión v7.0</span></div>
   <div class="kpi-inline">
     <span class="badge">Schema <span id="schemaVersionLabel">3</span></span>
     <span class="badge">Dispositivo local</span>
@@ -177,6 +233,18 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <div class="actions"><label class="secondary">Cargar logo<input type="file" id="orgLogoInput" accept="image/png,image/jpeg,image/webp" hidden></label><button class="danger-soft" id="removeLogoBtn">Quitar logo</button></div>
 </div></div></div>
 
+
+<div class="panel">
+  <div class="panel-head"><h3>Salud de datos</h3><button class="secondary" id="refreshHealth">Revisar ahora</button></div>
+  <div class="data-health-grid">
+    <div class="mini"><span>Duplicados posibles</span><strong id="healthDuplicates">0</strong></div>
+    <div class="mini"><span>Sin contacto</span><strong id="healthNoContact">0</strong></div>
+    <div class="mini"><span>Relaciones pendientes</span><strong id="healthOrphans">0</strong></div>
+    <div class="mini"><span>Respaldo</span><strong id="healthBackup">Pendiente</strong></div>
+  </div>
+  <div id="healthDetails" class="list" style="margin-top:10px"></div>
+</div>
+
 <div class="panel"><div class="panel-head"><h3>Usuarios y roles</h3><button class="primary" id="addUser">+ Usuario</button></div><div id="userList" class="role-grid"></div></div>
 <div class="panel"><div class="actions"><button class="primary" id="backupBtn">Exportar respaldo</button><label class="secondary">Restaurar<input id="restoreInput" type="file" accept="application/json" hidden></label></div></div>
 <div class="panel"><h3>Auditoría</h3><div id="auditList" class="list"></div></div>
@@ -189,6 +257,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <script>window.addEventListener('unhandledrejection',e=>showBootError(e.reason));window.addEventListener('error',e=>showBootError(e.error||e.message));
 
 const DB='residencialAdminDB',VER=4;
+const APP_VERSION='7.0',SCHEMA_VERSION=4;
 const stores=['settings','users','units','residents','transactions','dues','maintenance','incidents','visitors','reservations','notices','meetings','documents','assets','vendors','notifications','audit'];
 let db,settings={},saveHandler=null,deferred=null,currentUnitId='',unitTab='account',activeUser=null,portalResidentId='',currentReportType='summary';
 const $=x=>document.getElementById(x),uid=p=>p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),today=()=>new Date().toISOString().slice(0,10),ym=d=>(d||today()).slice(0,7),money=n=>new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(Number(n||0)),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])),dateText=s=>s?new Date(s+'T12:00:00').toLocaleDateString('es-DO'):'';
@@ -218,7 +287,7 @@ async function backfillSchema(){
       if(changed)await put(storeName,row)
     }
   }
-  settings.schemaVersion=3;await put('settings',{...settings,id:'main'})
+  settings.schemaVersion=SCHEMA_VERSION;await put('settings',{...settings,id:'main'})
 }
 async function ensurePortalResident(){
   const rs=(await all('residents')).filter(r=>r.status!=='Inactivo');
@@ -264,15 +333,97 @@ const roles={
 };
 const modules=[['dashboard','🏠 Inicio'],['residents','👥 Residentes y unidades'],['treasury','💰 Tesorería'],['dues','🧾 Cuotas y cobros'],['maintenance','🛠️ Mantenimiento'],['security','🛡️ Seguridad y accesos'],['reservations','📅 Áreas comunes'],['communications','📣 Comunicaciones'],['meetings','🗳️ Reuniones y actas'],['documents','📁 Documentos'],['assets','📦 Activos e inventario'],['vendors','🤝 Proveedores'],['portal','📱 Portal del Residente'],['notifications','🔔 Notificaciones'],['reports','📊 Informes'],['admin','⚙️ Administración']];
 function menu(o){$('sidebar').classList.toggle('open',o);$('overlay').classList.toggle('show',o)}$('menuBtn').onclick=()=>menu(true);$('closeMenu').onclick=()=>menu(false);$('overlay').onclick=()=>menu(false);
-function can(v){if(!activeUser)return true;return (roles[activeUser.role]||roles.Consulta).includes(v)}
-function buildNav(){const allowed=modules.filter(x=>can(x[0]));$('nav').innerHTML=allowed.map(x=>`<button data-v="${x[0]}">${x[1]}</button>`).join('');$('moduleGrid').innerHTML=allowed.filter(x=>!['dashboard','admin'].includes(x[0])).slice(0,6).map(x=>`<button class="module" data-jump="${x[0]}"><b>${x[1]}</b><span>Gestionar módulo</span></button>`).join('');document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>view(b.dataset.v));document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>view(b.dataset.jump))}
+function can(v){if(!activeUser)return true;return (roles[activeUser.role]||roles.Administrador).includes(v)}
+
+function buildNav(){
+  let allowed=modules.filter(x=>can(x[0]));if(!allowed.length)allowed=modules;
+  $('nav').innerHTML=allowed.map(x=>`<button data-v="${x[0]}">${x[1]}</button>`).join('');
+  $('moduleGrid').innerHTML=allowed.filter(x=>!['dashboard','admin'].includes(x[0])).slice(0,6).map(x=>`<button class="module" data-jump="${x[0]}"><b>${x[1]}</b><span>Gestionar módulo</span></button>`).join('');
+  document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>view(b.dataset.v));
+  document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>view(b.dataset.jump));
+}
 function view(v){if(!can(v)){toast('Tu rol no tiene acceso a este módulo');return}document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===v));document.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('active',x.dataset.v===v));menu(false);render(v);window.scrollTo({top:0,behavior:'smooth'})}
-async function loadSettings(){settings=await get('settings','main')||{id:'main',organization:'Residencial Admin',orgType:'Residencial',manager:'',dueAmount:0,graceDays:5,latePct:2,schemaVersion:3};$('orgName').textContent=settings.organization;$('orgType').textContent=settings.orgType;$('sOrg').value=settings.organization;$('sType').value=settings.orgType;$('sManager').value=settings.manager||'';$('sDue').value=settings.dueAmount||0;$('sGrace').value=settings.graceDays??5;$('sLatePct').value=settings.latePct??2;if($('schemaVersionLabel'))$('schemaVersionLabel').textContent=settings.schemaVersion||3};if($('orgLogoPreview')){$('orgLogoPreview').src=settings.logoDataUrl||'';$('orgLogoPreview').style.visibility=settings.logoDataUrl?'visible':'hidden'}
-async function ensureDefaultUser(){let us=await all('users');if(!us.length){const u={id:'user_admin',name:settings.manager||'Administrador',role:'Administrador',active:true};await put('users',u);us=[u]}activeUser=us.find(x=>x.id===settings.activeUserId)||us.find(x=>x.active)||us[0];$('activeUserLabel').textContent=activeUser?`${activeUser.name} · ${activeUser.role}`:'';buildNav()}
+
+async function loadSettings(){
+  settings=await get('settings','main')||{id:'main',organization:'Residencial Admin',orgType:'Residencial',manager:'',dueAmount:0,graceDays:5,latePct:2,schemaVersion:SCHEMA_VERSION};
+  if(!settings.billingBasis)settings.billingBasis=['Junta de Vecinos','Asociación'].includes(settings.orgType)?'resident':'unit';
+  settings.schemaVersion=SCHEMA_VERSION;
+  $('orgName').textContent=settings.organization;
+  $('orgType').textContent=`${settings.orgType||'Organización'} · v${APP_VERSION}`;
+  if($('sidebarOrgName'))$('sidebarOrgName').textContent=settings.organization||'Residencial Admin';
+  if($('sOrg'))$('sOrg').value=settings.organization||'';
+  if($('sType'))$('sType').value=settings.orgType||'Residencial';
+  if($('sManager'))$('sManager').value=settings.manager||'';
+  if($('sBillingBasis'))$('sBillingBasis').value=settings.billingBasis;
+  if($('sDue'))$('sDue').value=settings.dueAmount||0;
+  if($('sGrace'))$('sGrace').value=settings.graceDays??5;
+  if($('sLatePct'))$('sLatePct').value=settings.latePct??2;
+  if($('sLegalId'))$('sLegalId').value=settings.legalId||'';
+  if($('sOrgPhone'))$('sOrgPhone').value=settings.orgPhone||'';
+  if($('sOrgEmail'))$('sOrgEmail').value=settings.orgEmail||'';
+  if($('sAddress'))$('sAddress').value=settings.address||'';
+  if($('sSlogan'))$('sSlogan').value=settings.slogan||'';
+  if($('schemaVersionLabel'))$('schemaVersionLabel').textContent=settings.schemaVersion||SCHEMA_VERSION;
+  for(const id of ['orgLogoPreview','headerLogo']){
+    const el=$(id);if(el){el.src=settings.logoDataUrl||'';el.style.display=settings.logoDataUrl?'block':'none';el.style.visibility=settings.logoDataUrl?'visible':'hidden'}
+  }
+  await put('settings',{...settings,id:'main'});
+}
+
+async function ensureDefaultUser(){
+  let us=await all('users');
+  if(!us.length){const u=stampNew({id:'user_admin',name:settings.manager||'Administrador',role:'Administrador',active:true});await put('users',u);us=[u]}
+  activeUser=us.find(x=>x.id===settings.activeUserId)||us.find(x=>x.active)||us[0];
+  if(!activeUser||!roles[activeUser.role])activeUser={id:'fallback_admin',name:settings.manager||'Administrador',role:'Administrador',active:true};
+  $('activeUserLabel').textContent=`👤 ${activeUser.name} · ${activeUser.role}`;
+  $('activeUserLabel').title=`${activeUser.name} · ${activeUser.role}`;
+  buildNav()
+}
+
+function normText(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+/g,' ')}
+const moduleLabels={residents:'Residentes',units:'Unidades',treasury:'Tesorería',dues:'Cuotas',maintenance:'Mantenimiento',security:'Seguridad',reservations:'Reservas',communications:'Comunicaciones',meetings:'Reuniones',documents:'Documentos',assets:'Activos',vendors:'Proveedores',settings:'Administración',branding:'Identidad visual',users:'Usuarios',notifications:'Notificaciones',portal:'Portal'};
+const actionLabels={create:'Registro creado',edit:'Actualización',payment:'Pago registrado',generate:'Generación',apply:'Aplicación',checkin:'Entrada registrada',checkout:'Salida registrada',authorize:'Autorización',preview:'Vista previa',switch:'Cambio de perfil',void:'Movimiento anulado'};
+function friendlyAudit(a){return `${moduleLabels[a.module]||a.module} · ${actionLabels[a.action]||a.action}`}
+async function dataHealth(){
+  const [res,units,duesRows,notifs]=await Promise.all([all('residents'),all('units'),all('dues'),all('notifications')]);
+  const active=res.filter(r=>r.status!=='Inactivo'),names=new Map(),dups=[];
+  for(const r of active){const k=normText(r.name);if(!k)continue;if(names.has(k))dups.push([names.get(k),r]);else names.set(k,r)}
+  const noContact=active.filter(r=>!String(r.phone||'').trim()&&!String(r.email||'').trim());
+  const unitIds=new Set(units.map(u=>u.id)),residentIds=new Set(res.map(r=>r.id));
+  const orphans=duesRows.filter(d=>(d.unitId&&!unitIds.has(d.unitId))||(d.residentId&&!residentIds.has(d.residentId)));
+  const backupDays=settings.lastBackupAt?Math.floor((Date.now()-new Date(settings.lastBackupAt).getTime())/86400000):999;
+  return {duplicates:dups.length,noContact:noContact.length,orphans:orphans.length,backupDays,unread:notifs.filter(n=>!n.read&&!n.archived).length,
+    details:[
+      ...(dups.length?[`${dups.length} posible(s) residente(s) duplicado(s).`]:[]),
+      ...(noContact.length?[`${noContact.length} residente(s) sin teléfono ni correo.`]:[]),
+      ...(orphans.length?[`${orphans.length} cuota(s) con relación pendiente.`]:[]),
+      ...(backupDays>7?[settings.lastBackupAt?`El último respaldo tiene ${backupDays} días.`:'Aún no existe un respaldo.']:[])
+    ]}
+}
+async function renderHealth(){
+  const h=await dataHealth();
+  if($('healthDuplicates'))$('healthDuplicates').textContent=h.duplicates;
+  if($('healthNoContact'))$('healthNoContact').textContent=h.noContact;
+  if($('healthOrphans'))$('healthOrphans').textContent=h.orphans;
+  if($('healthBackup'))$('healthBackup').textContent=h.backupDays<=7?'Al día':(h.backupDays===999?'Sin respaldo':`${h.backupDays} días`);
+  if($('healthDetails'))$('healthDetails').innerHTML=h.details.map(x=>`<div class="item"><div><div class="title">${esc(x)}</div></div></div>`).join('')||'<div class="empty">No se detectaron incidencias relevantes.</div>';
+  return h
+}
 function totals(tx){return tx.reduce((a,t)=>{if(t.status==='void')return a;if(t.type==='income')a.i+=+t.amount;if(t.type==='expense')a.e+=+t.amount;if(t.type==='sponsored')a.s+=+t.amount;return a},{i:0,e:0,s:0})}
 function duePending(d){return Math.max(0,(+d.amountDue||0)+(+d.lateFee||0)-(+d.amountPaid||0))}
-async function render(v){if(v==='dashboard')return dash();if(v==='residents')return residents();if(v==='unitProfile')return renderUnitProfile();if(v==='treasury')return treasury();if(v==='dues')return dues();if(v==='maintenance')return maintenance();if(v==='security')return security();if(v==='reservations')return reservations();if(v==='communications')return communications();if(v==='meetings')return meetings();if(v==='documents')return documents();if(v==='assets')return assets();if(v==='vendors')return vendors();if(v==='portal')return portal();if(v==='notifications')return notifications();if(v==='reports')return report();if(v==='admin'){await loadSettings();await users();return audits()}}
-async function dash(){const [u,r,t,d,m,a]=await Promise.all([all('units'),all('residents'),all('transactions'),all('dues'),all('maintenance'),all('audit')]),x=totals(t);$('dashBalance').textContent=money(x.i-x.e);$('dashUnits').textContent=u.length;$('dashResidents').textContent=r.filter(x=>x.status!=='Inactivo').length;$('dashPending').textContent=money(d.reduce((s,q)=>s+duePending(q),0));$('dashMaint').textContent=m.filter(q=>!['Completado','Cancelado'].includes(q.status)).length;$('backupState').textContent=settings.lastBackupAt?'Último respaldo: '+new Date(settings.lastBackupAt).toLocaleDateString('es-DO'):'⚠️ Sin respaldo';$('recent').innerHTML=a.sort((x,y)=>y.at.localeCompare(x.at)).slice(0,8).map(q=>`<div class="item"><div><div class="title">${esc(q.module)} · ${esc(q.action)}</div><div class="sub">${new Date(q.at).toLocaleString('es-DO')} · ${esc(q.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin actividad.</div>'}
+async function render(v){if(v==='dashboard')return dash();if(v==='residents')return residents();if(v==='unitProfile')return renderUnitProfile();if(v==='treasury')return treasury();if(v==='dues')return dues();if(v==='maintenance')return maintenance();if(v==='security')return security();if(v==='reservations')return reservations();if(v==='communications')return communications();if(v==='meetings')return meetings();if(v==='documents')return documents();if(v==='assets')return assets();if(v==='vendors')return vendors();if(v==='portal')return portal();if(v==='notifications')return notifications();if(v==='reports')return report();if(v==='admin'){await loadSettings();await users();await audits();return renderHealth()}}
+
+async function dash(){
+  const [u,r,t,d,m,a,n]=await Promise.all([all('units'),all('residents'),all('transactions'),all('dues'),all('maintenance'),all('audit'),all('notifications')]),x=totals(t),month=ym(),monthTx=t.filter(q=>String(q.date||'').startsWith(month)),mx=totals(monthTx),h=await dataHealth();
+  $('dashBalance').textContent=money(x.i-x.e);$('dashUnits').textContent=u.length;$('dashResidents').textContent=r.filter(x=>x.status!=='Inactivo').length;$('dashPending').textContent=money(d.reduce((s,q)=>s+duePending(q),0));$('dashMaint').textContent=m.filter(q=>!['Completado','Cancelado'].includes(q.status)).length;
+  $('dashMonthIn').textContent=money(mx.i);$('dashMonthOut').textContent=money(mx.e);$('dashUnread').textContent=h.unread;
+  const issues=h.duplicates+h.orphans+(h.backupDays>7?1:0);$('dashHealth').textContent=issues?'Revisar':'OK';$('dashHealthNote').textContent=issues?`${issues} punto(s) a revisar`:'Sin incidencias críticas';
+  $('dashUnitsNote').textContent=settings.billingBasis==='resident'?'Uso opcional; cobro por miembro':'Base principal de cobranza';
+  $('dashPendingNote').textContent=settings.billingBasis==='resident'?'Por residente / miembro':'Por unidad / propiedad';
+  $('backupState').textContent=settings.lastBackupAt?'Último respaldo: '+new Date(settings.lastBackupAt).toLocaleDateString('es-DO'):'⚠️ Sin respaldo';
+  const healthItems=[];if(h.backupDays>7)healthItems.push(`<span class="badge health-warn">⚠️ Respaldo pendiente</span>`);if(h.duplicates)healthItems.push(`<span class="badge health-warn">👥 ${h.duplicates} duplicado(s) posible(s)</span>`);if(h.orphans)healthItems.push(`<span class="badge health-bad">🔗 ${h.orphans} relación(es) pendiente(s)</span>`);if(!healthItems.length)healthItems.push(`<span class="badge health-ok">✓ Datos consistentes</span>`);$('dashboardHealthStrip').innerHTML=healthItems.join('');
+  $('recent').innerHTML=a.sort((x,y)=>y.at.localeCompare(x.at)).slice(0,8).map(q=>`<div class="item"><div><div class="title">${esc(friendlyAudit(q))}</div><div class="sub">${new Date(q.at).toLocaleString('es-DO')} · ${esc(q.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin actividad.</div>'
+}
 async function residents(){
   const q=($('residentSearch').value||'').toLowerCase(),
         [rs,us,ds]=await Promise.all([all('residents'),all('units'),all('dues')]),
@@ -392,7 +543,9 @@ window.previewResidentPortal=async id=>{
 window.openUnit=id=>{currentUnitId=id;unitTab='account';view('unitProfile')};$('backUnits').onclick=()=>view('residents');document.querySelectorAll('[data-unit-tab]').forEach(b=>b.onclick=()=>{unitTab=b.dataset.unitTab;document.querySelectorAll('[data-unit-tab]').forEach(x=>x.classList.toggle('active',x.dataset.unitTab===unitTab));renderUnitProfile()});
 async function renderUnitProfile(){const u=await get('units',currentUnitId);if(!u){view('residents');return}const [rs,ds,tx,mt,vs]=await Promise.all([all('residents'),all('dues'),all('transactions'),all('maintenance'),all('visitors')]);const residentsU=rs.filter(r=>r.unitId===u.id||r.unitLabel===u.label),duesU=ds.filter(d=>d.unitId===u.id||d.unitLabel===u.label),txU=tx.filter(t=>t.unitId===u.id||t.unitLabel===u.label),maintU=mt.filter(m=>m.unitId===u.id||m.location===u.label),visU=vs.filter(v=>v.unitId===u.id||v.unitLabel===u.label);const pending=duesU.reduce((s,d)=>s+duePending(d),0),paid=duesU.reduce((s,d)=>s+(+d.amountPaid||0),0);$('unitProfileTitle').textContent=`Unidad ${u.label}`;$('unitProfileSubtitle').textContent=`${u.type||'Unidad'}${u.floor?' · '+u.floor:''}`;$('unitPending').textContent=money(pending);$('unitPaid').textContent=money(paid);$('unitResidentsCount').textContent=residentsU.length;$('unitMaintCount').textContent=maintU.length;let out='';if(unitTab==='account'){out=`<h3>Estado de cuenta</h3><div class="list">${duesU.sort((a,b)=>b.month.localeCompare(a.month)).map(d=>`<div class="item"><div><div class="title">${esc(d.month)}</div><div class="sub">Cuota ${money(d.amountDue)} · Mora ${money(d.lateFee||0)} · Pagado ${money(d.amountPaid||0)}</div></div><strong class="${duePending(d)>0?'expense':'income'}" data-money>${money(duePending(d))}</strong></div>`).join('')||'<div class="empty">Sin cuotas.</div>'}</div><h4 style="margin-top:14px">Movimientos</h4><div class="list">${txU.map(t=>`<div class="item"><div><div class="title">${esc(t.concept)}</div><div class="sub">${dateText(t.date)} · ${esc(t.person)}</div></div><strong data-money>${money(t.amount)}</strong></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}</div>`}else if(unitTab==='people'){out=`<h3>Residentes</h3><div class="list">${residentsU.map(r=>`<div class="item"><div><div class="title">${esc(r.name)}</div><div class="sub">${esc(r.role)} · ${esc(r.phone||'')} · ${esc(r.email||'')}</div></div></div>`).join('')||'<div class="empty">Sin residentes.</div>'}</div>`}else if(unitTab==='maintenance'){out=`<h3>Mantenimiento</h3><div class="list">${maintU.map(m=>`<div class="item"><div><div class="title">${esc(m.title)}</div><div class="sub">${esc(m.status)} · ${esc(m.vendorName||'Sin proveedor')} · Costo ${money(m.actualCost||m.estimatedCost||0)}</div></div></div>`).join('')||'<div class="empty">Sin mantenimientos.</div>'}</div>`}else{out=`<h3>Accesos</h3><div class="list">${visU.map(v=>`<div class="item"><div><div class="title">${esc(v.name)}</div><div class="sub">${dateText(v.date)} · Entrada ${esc(v.checkIn||'')} · Salida ${esc(v.checkOut||'Pendiente')} · ${esc(v.vehicle||'')}</div></div></div>`).join('')||'<div class="empty">Sin accesos.</div>'}</div>`}$('unitProfileContent').innerHTML=out}
 $('unitAddPayment').onclick=async()=>{const u=await get('units',currentUnitId);openPaymentForm(u)}
-async function treasury(){const t=await all('transactions'),x=totals(t);$('tIn').textContent=money(x.i);$('tOut').textContent=money(x.e);$('tBal').textContent=money(x.i-x.e);$('tSponsored').textContent=money(x.s);$('txList').innerHTML=t.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(q=>`<div class="item"><div><div class="title">${esc(q.concept)}</div><div class="sub">${dateText(q.date)} · ${esc(q.person)}${q.unitLabel?' · '+esc(q.unitLabel):''}</div></div><div class="amount ${q.type}" data-money>${money(q.amount)}</div></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}
+
+async function treasury(){const t=await all('transactions'),x=totals(t);$('tIn').textContent=money(x.i);$('tOut').textContent=money(x.e);$('tBal').textContent=money(x.i-x.e);$('tSponsored').textContent=money(x.s);$('txList').innerHTML=t.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(q=>`<div class="item"><div><div class="title">${esc(q.concept)} ${q.status==='void'?'<span class="badge danger">ANULADO</span>':''}</div><div class="sub">${dateText(q.date)} · ${esc(q.person)}${q.unitLabel?' · '+esc(q.unitLabel):''}</div></div><div><div class="amount ${q.type}" data-money>${money(q.amount)}</div>${q.status!=='void'?`<button class="ghost" style="margin-top:6px" onclick="voidTx('${q.id}')">Anular</button>`:''}</div></div>`).join('')||'<div class="empty">Sin movimientos.</div>'}
+window.voidTx=async id=>{const tx=await get('transactions',id);if(!tx||tx.status==='void')return;if(!confirm(`¿Anular el movimiento "${tx.concept}" por ${money(tx.amount)}?\\n\\nEl registro se conservará en auditoría.`))return;tx.status='void';tx.voidedAt=new Date().toISOString();tx.voidedBy=actor();await put('transactions',stampEdit(tx));await audit('void','treasury',id,{amount:tx.amount,concept:tx.concept});await treasury();await dash();toast('Movimiento anulado')}
 async function dues(){const m=$('duesMonth').value||ym(),d=(await all('dues')).filter(x=>x.month===m);$('duesList').innerHTML=d.map(x=>`<div class="item"><div><div class="title">${esc(x.unitLabel||x.residentName)}</div><div class="sub">Cuota ${money(x.amountDue)} · Mora ${money(x.lateFee||0)} · Pagado ${money(x.amountPaid||0)}</div><span class="badge ${duePending(x)>0?'warn':''}">${duePending(x)>0?'Pendiente':'Pagado'}</span></div><strong class="${duePending(x)>0?'expense':'income'}" data-money>${money(duePending(x))}</strong></div>`).join('')||'<div class="empty">Sin cuotas.</div>'}
 async function maintenance(){const d=await all('maintenance');$('maintList').innerHTML=d.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(x=>`<div class="item"><div><div class="title">${esc(x.title)}</div><div class="sub">${dateText(x.date)} · ${esc(x.location||'Área común')} · ${esc(x.priority)} · ${esc(x.assignedTo||'Sin asignar')}</div><span class="badge">${esc(x.status)}</span>${x.vendorName?` <span class="badge blue">${esc(x.vendorName)}</span>`:''}</div><div class="amount" data-money>${money(x.actualCost||x.estimatedCost||0)}</div></div>`).join('')||'<div class="empty">Sin órdenes de trabajo.</div>'}
 async function security(){const [i,v]=await Promise.all([all('incidents'),all('visitors')]);$('visitorList').innerHTML=v.sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||'')).map(x=>`<div class="item"><div><div class="title">${esc(x.name)} ${x.checkOut?'':'🟢'}</div><div class="sub">${dateText(x.date)} · ${esc(x.unitLabel||'')} · Entrada ${esc(x.checkIn||'')} · Salida ${esc(x.checkOut||'Pendiente')} · ${esc(x.vehicle||'')}</div></div>${!x.checkOut?`<button class="secondary" onclick="checkoutVisitor('${x.id}')">Registrar salida</button>`:''}</div>`).join('')||'<div class="empty">Sin visitantes.</div>';$('incidentList').innerHTML=i.map(x=>`<div class="item"><div><div class="title">${esc(x.title)}</div><div class="sub">${dateText(x.date)} · ${esc(x.location)} · ${esc(x.severity)}</div></div></div>`).join('')||'<div class="empty">Sin incidentes.</div>'}
@@ -403,7 +556,8 @@ async function meetings(){const d=await all('meetings');$('meetingList').innerHT
 async function documents(){const d=await all('documents');$('documentList').innerHTML=d.map(x=>`<div class="item"><div><div class="title">${esc(x.title)}</div><div class="sub">${dateText(x.date)} · ${esc(x.category)} · ${esc(x.reference||'')}</div></div></div>`).join('')||'<div class="empty">Sin documentos.</div>'}
 async function assets(){const d=await all('assets');$('assetList').innerHTML=d.map(x=>`<div class="item"><div><div class="title">${esc(x.name)}</div><div class="sub">${esc(x.category)} · ${esc(x.location)} · ${esc(x.condition)}</div></div><strong>${x.quantity}</strong></div>`).join('')||'<div class="empty">Sin activos.</div>'}
 async function vendors(){const d=await all('vendors');$('vendorList').innerHTML=d.map(x=>`<div class="item"><div><div class="title">${esc(x.name)}</div><div class="sub">${esc(x.service)} · ${esc(x.phone||'')}</div></div></div>`).join('')||'<div class="empty">Sin proveedores.</div>'}
-async function audits(){const d=await all('audit');$('auditList').innerHTML=d.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,50).map(x=>`<div class="item"><div><div class="title">${esc(x.module)} · ${esc(x.action)}</div><div class="sub">${new Date(x.at).toLocaleString('es-DO')} · ${esc(x.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin auditoría.</div>'}
+
+async function audits(){const d=await all('audit');$('auditList').innerHTML=d.sort((a,b)=>b.at.localeCompare(a.at)).slice(0,60).map(x=>`<div class="item"><div><div class="title">${esc(friendlyAudit(x))}</div><div class="sub">${new Date(x.at).toLocaleString('es-DO')} · ${esc(x.user||'')}</div></div></div>`).join('')||'<div class="empty">Sin auditoría.</div>'}
 async function users(){const d=await all('users');$('userList').innerHTML=d.map(x=>`<div class="role-card"><h4>${esc(x.name)}</h4><p>${esc(x.role)}${activeUser?.id===x.id?' · Usuario activo':''}</p><div class="actions" style="margin-top:8px"><button class="secondary" onclick="activateUser('${x.id}')">Usar perfil</button></div></div>`).join('')}
 window.activateUser=async id=>{activeUser=await get('users',id);settings.activeUserId=id;await put('settings',settings);$('activeUserLabel').textContent=`${activeUser.name} · ${activeUser.role}`;buildNav();view('dashboard');toast('Perfil activado')}
 
@@ -421,7 +575,7 @@ async function portal(){
     r.unitId?get('units',r.unitId):Promise.resolve(null),all('dues'),all('transactions'),all('reservations'),all('maintenance'),all('notifications')
   ]);
   const unitLabel=u?.label||r.unitLabel||'Sin unidad';
-  const unitDues=duesRows.filter(d=>d.unitId===r.unitId||(r.unitLabel&&d.unitLabel===r.unitLabel)).sort((a,b)=>b.month.localeCompare(a.month));
+  const unitDues=duesRows.filter(d=>d.residentId===r.id||(r.unitId&&d.unitId===r.unitId)||(r.unitLabel&&d.unitLabel===r.unitLabel)).sort((a,b)=>(b.month||'').localeCompare(a.month||''));
   const unitTx=txRows.filter(t=>t.unitId===r.unitId||(r.unitLabel&&t.unitLabel===r.unitLabel)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const pending=unitDues.reduce((s,d)=>s+duePending(d),0);
   const year=today().slice(0,4);
@@ -447,7 +601,7 @@ async function notifications(){
 }
 
 function reportDateFilter(rows){const from=$('reportFrom')?.value||'0000-01-01',to=$('reportTo')?.value||'9999-12-31';return rows.filter(x=>!x.date||(x.date>=from&&x.date<=to))}
-function brandHeader(title,period){return `${settings.logoDataUrl?`<img class="report-logo" src="${settings.logoDataUrl}" alt="Logo">`:''}<h2>${esc(settings.organization)}</h2><p><strong>${title}</strong></p><p class="sub">Período: ${esc(period)}</p>`}
+function brandHeader(title,period){const contact=[settings.legalId?`ID: ${settings.legalId}`:'',settings.orgPhone||'',settings.orgEmail||'',settings.address||''].filter(Boolean).join(' · ');return `${settings.logoDataUrl?`<img class="report-logo" src="${settings.logoDataUrl}" alt="Logo">`:''}<h2>${esc(settings.organization)}</h2>${settings.slogan?`<div class="sub">${esc(settings.slogan)}</div>`:''}${contact?`<div class="report-brand-contact">${esc(contact)}</div>`:''}<p><strong>${title}</strong></p><p class="sub">Período: ${esc(period)}</p>`}
 async function report(){const [txAll,duesAll,maintAll,incAll,resAll,unitAll,resvAll]=await Promise.all([all('transactions'),all('dues'),all('maintenance'),all('incidents'),all('residents'),all('units'),all('reservations')]);const tx=reportDateFilter(txAll),maint=reportDateFilter(maintAll),inc=reportDateFilter(incAll),resv=reportDateFilter(resvAll),t=totals(tx),pending=duesAll.reduce((s,d)=>s+duePending(d),0),period=($('reportFrom').value||$('reportTo').value)?`${$('reportFrom').value||'Inicio'} a ${$('reportTo').value||'Hoy'}`:'Todos los registros';let body=brandHeader(currentReportType==='summary'?'Informe Administrativo General':currentReportType==='financial'?'Informe Financiero Detallado':currentReportType==='collections'?'Informe de Cuotas y Cobros':'Informe Operativo',period);
 if(currentReportType==='summary')body+=`<table class="report-table"><tr><td>Unidades</td><td>${unitAll.length}</td></tr><tr><td>Residentes</td><td>${resAll.length}</td></tr><tr><td>Ingresos</td><td>${money(t.i)}</td></tr><tr><td>Gastos</td><td>${money(t.e)}</td></tr><tr><td>Balance</td><td>${money(t.i-t.e)}</td></tr><tr><td>Cuentas por cobrar</td><td>${money(pending)}</td></tr><tr><td>Órdenes abiertas</td><td>${maintAll.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}</td></tr><tr><td>Incidentes</td><td>${incAll.length}</td></tr></table>`;
 else if(currentReportType==='financial'){body+=`<div class="report-section"><h3>Resumen</h3><table class="report-table"><tr><td>Ingresos</td><td>${money(t.i)}</td></tr><tr><td>Gastos</td><td>${money(t.e)}</td></tr><tr><td>Patrocinados</td><td>${money(t.s)}</td></tr><tr><td>Balance</td><td>${money(t.i-t.e)}</td></tr></table></div>`;for(const [type,title] of [['income','Ingresos'],['expense','Gastos'],['sponsored','Patrocinados / directos']]){const rows=tx.filter(x=>x.type===type);body+=`<div class="report-section"><h3>${title}</h3><table class="report-table"><tr><th>Fecha / persona / concepto</th><th>Monto</th></tr>${rows.map(x=>`<tr><td>${dateText(x.date)} · ${esc(x.person||'')} · ${esc(x.concept||'')}</td><td>${money(x.amount)}</td></tr>`).join('')||'<tr><td colspan="2">Sin registros</td></tr>'}</table></div>`}}
@@ -473,18 +627,57 @@ async function setupPersonPickers(fields){
     input.oninput=render;input.onfocus=render;mode.onchange=()=>{hidden.value='';input.value='';list.hidden=true;input.placeholder=mode.value==='resident'?'Empieza a escribir el nombre...':'Digite el nombre de la persona externa'}
   }
 }
-$('dlgSave').onclick=async e=>{e.preventDefault();await saveHandler?.();$('dlg').close();await render(document.querySelector('.view.active').id);toast('Guardado')}
+$('dlgSave').onclick=async e=>{e.preventDefault();const result=await saveHandler?.();if(result===false)return;$('dlg').close();await render(document.querySelector('.view.active').id);toast('Guardado')}
 $('addUnit').onclick=()=>form('Nueva unidad',[{id:'label',label:'Unidad'},{id:'type',label:'Tipo',value:'Apartamento'},{id:'floor',label:'Bloque / nivel'}],async()=>{const o=stampNew({id:uid('unit'),label:$('f_label').value,type:$('f_type').value,floor:$('f_floor').value});await put('units',o);await audit('create','units',o.id,o)});
-$('addResident').onclick=async()=>{const u=await all('units');form('Nuevo residente',[{id:'name',label:'Nombre completo'},{id:'role',label:'Rol',type:'select',options:['Propietario','Inquilino','Familiar','Otro']},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'phone',label:'Teléfono'},{id:'email',label:'Correo',type:'email'}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o=stampNew({id:uid('resident'),name:$('f_name').value,role:$('f_role').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,phone:$('f_phone').value,email:$('f_email').value,status:'Activo'});await put('residents',o);await audit('create','residents',o.id,o)})};
 
+$('addResident').onclick=async()=>{
+  const u=await all('units');
+  form('Nuevo residente',[{id:'name',label:'Nombre completo'},{id:'role',label:'Rol',type:'select',options:['Propietario','Inquilino','Familiar','Otro']},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'phone',label:'Teléfono'},{id:'email',label:'Correo',type:'email'}],async()=>{
+    const name=$('f_name').value.trim();if(!name){alert('El nombre es obligatorio.');return false}
+    const existing=(await all('residents')).find(r=>r.status!=='Inactivo'&&normText(r.name)===normText(name));
+    if(existing&&!confirm(`Ya existe un residente llamado "${existing.name}".\\n\\n¿Deseas registrarlo de todos modos?`))return false;
+    const ul=$('f_unit').value,un=u.find(x=>x.label===ul),o=stampNew({id:uid('resident'),name,role:$('f_role').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,phone:$('f_phone').value.trim(),email:$('f_email').value.trim(),status:'Activo'});
+    await put('residents',o);await audit('create','residents',o.id,o)
+  })
+};
 $('addTx').onclick=async()=>{form('Nuevo movimiento',[
 {id:'type',label:'Tipo',type:'select',options:['income','expense','sponsored']},{id:'date',label:'Fecha',type:'date',value:today()},{id:'person',label:'Persona / responsable',type:'personpicker'},{id:'amount',label:'Monto',type:'number'},{id:'concept',label:'Concepto'},{id:'category',label:'Categoría',value:'General'}],async()=>{
 const residentId=$('f_person_residentId').value,resident=residentId?await get('residents',residentId):null,name=$('f_person').value.trim(),unit=resident?.unitId?await get('units',resident.unitId):null;if(!name){alert('Selecciona un residente o digita la persona externa.');return}
 const o=stampNew({id:uid('tx'),type:$('f_type').value,date:$('f_date').value,residentId:resident?.id||'',unitId:resident?.unitId||'',unitLabel:unit?.label||resident?.unitLabel||'',person:resident?.name||name,personType:resident?'resident':'external',amount:+$('f_amount').value,concept:$('f_concept').value,category:$('f_category').value,status:'active'});await put('transactions',o);await audit('create','treasury',o.id,o)})};
-$('genDues').onclick=async()=>{const m=$('duesMonth').value||ym(),u=await all('units');for(const x of u){const id='due_'+m+'_'+x.id;if(!(await get('dues',id)))await put('dues',{id,month:m,unitId:x.id,unitLabel:x.label,amountDue:+settings.dueAmount||0,lateFee:0,amountPaid:0,status:'pending',dueDate:m+'-'+String(Math.max(1,+settings.graceDays||5)).padStart(2,'0')})}await audit('generate','dues',m,{count:u.length});dues();toast('Cuotas generadas')};
-$('applyLateFees').onclick=async()=>{const m=$('duesMonth').value||ym(),ds=(await all('dues')).filter(d=>d.month===m),pct=+settings.latePct||0;let n=0;for(const d of ds){if(duePending(d)>0&&!d.lateApplied){d.lateFee=Math.round((+d.amountDue||0)*pct)/100;d.lateApplied=true;await put('dues',d);n++}}await audit('apply','late-fees',m,{count:n,pct});dues();toast(`Mora aplicada a ${n} cuenta(s)`)};
-function openPaymentForm(unit=null){form('Registrar pago',[{id:'date',label:'Fecha',type:'date',value:today()},{id:'amount',label:'Monto',type:'number'},{id:'person',label:'Pagado por'},{id:'method',label:'Método',type:'select',options:['Efectivo','Transferencia','Cheque','Otro']}],async()=>{const amount=+$('f_amount').value,ds=(await all('dues')).filter(d=>(unit?d.unitId===unit.id:true)&&duePending(d)>0).sort((a,b)=>a.month.localeCompare(b.month));let left=amount;for(const d of ds){if(left<=0)break;const p=duePending(d),apply=Math.min(left,p);d.amountPaid=(+d.amountPaid||0)+apply;d.status=duePending(d)-apply<=0?'paid':'partial';await put('dues',d);left-=apply}const tx=stampNew({id:uid('tx'),type:'income',date:$('f_date').value,unitId:unit?.id||'',unitLabel:unit?.label||'',person:$('f_person').value,amount,concept:'Pago de cuota / estado de cuenta',category:'Cuota',method:$('f_method').value,status:'active'});await put('transactions',tx);await audit('payment','dues',tx.id,{amount,unit:unit?.label||''})})}
-$('recordDuePayment').onclick=async()=>{const u=await all('units');form('Seleccionar unidad',[{id:'unit',label:'Unidad',type:'select',options:u.map(x=>x.label)}],async()=>{const unit=u.find(x=>x.label===$('f_unit').value);$('dlg').close();setTimeout(()=>openPaymentForm(unit),100)})};
+
+$('genDues').onclick=async()=>{
+  const m=$('duesMonth').value||ym(),basis=settings.billingBasis||'resident',targets=basis==='unit'?await all('units'):(await all('residents')).filter(r=>r.status!=='Inactivo');
+  if(!targets.length){alert(basis==='unit'?'No hay unidades registradas. Cambia la base de cobro a Residente / miembro o crea unidades.':'No hay residentes activos.');return}
+  let created=0;
+  for(const x of targets){
+    const id=`due_${m}_${basis}_${x.id}`;if(await get('dues',id))continue;
+    await put('dues',stampNew({id,month:m,unitId:basis==='unit'?x.id:(x.unitId||''),unitLabel:basis==='unit'?x.label:(x.unitLabel||''),residentId:basis==='resident'?x.id:'',residentName:basis==='resident'?x.name:'',amountDue:+settings.dueAmount||0,lateFee:0,amountPaid:0,status:'pending',dueDate:m+'-'+String(Math.max(1,+settings.graceDays||5)).padStart(2,'0'),billingBasis:basis}));created++
+  }
+  await audit('generate','dues',m,{count:created,basis});await dues();toast(`${created} cuota(s) generada(s)`)
+};
+$('applyLateFees').onclick=async()=>{const m=$('duesMonth').value||ym(),ds=(await all('dues')).filter(d=>d.month===m),pct=+settings.latePct||0;let n=0;for(const d of ds){if(duePending(d)>0&&!d.lateApplied){d.lateFee=Math.round((+d.amountDue||0)*pct)/100;d.lateApplied=true;await put('dues',stampEdit(d));n++}}await audit('apply','dues',m,{count:n,pct});dues();toast(`Mora aplicada a ${n} cuenta(s)`)};
+function openPaymentForm(target=null){
+  form('Registrar pago',[{id:'date',label:'Fecha',type:'date',value:today()},{id:'amount',label:'Monto',type:'number'},{id:'person',label:'Pagado por'},{id:'method',label:'Método',type:'select',options:['Efectivo','Transferencia','Cheque','Otro']}],async()=>{
+    const amount=+$('f_amount').value;if(!(amount>0)){alert('El monto debe ser mayor que cero.');return false}
+    let ds=(await all('dues')).filter(d=>duePending(d)>0);
+    if(target?.kind==='unit')ds=ds.filter(d=>d.unitId===target.id);
+    if(target?.kind==='resident')ds=ds.filter(d=>d.residentId===target.id);
+    ds.sort((a,b)=>(a.month||'').localeCompare(b.month||''));
+    if(!ds.length){alert('No hay cuotas pendientes para este registro.');return false}
+    let left=amount;for(const d of ds){if(left<=0)break;const p=duePending(d),apply=Math.min(left,p);d.amountPaid=(+d.amountPaid||0)+apply;d.status=duePending(d)<=0?'paid':'partial';await put('dues',stampEdit(d));left-=apply}
+    const unit=target?.kind==='unit'?await get('units',target.id):null,resident=target?.kind==='resident'?await get('residents',target.id):null;
+    const tx=stampNew({id:uid('tx'),type:'income',date:$('f_date').value,residentId:resident?.id||'',unitId:unit?.id||resident?.unitId||'',unitLabel:unit?.label||resident?.unitLabel||'',person:$('f_person').value.trim()||resident?.name||'',amount,concept:'Pago de cuota / estado de cuenta',category:'Cuota',method:$('f_method').value,status:'active'});
+    await put('transactions',tx);await audit('payment','dues',tx.id,{amount,target:target?.label||''})
+  })
+}
+$('recordDuePayment').onclick=async()=>{
+  const basis=settings.billingBasis||'resident',rows=basis==='unit'?await all('units'):(await all('residents')).filter(r=>r.status!=='Inactivo');
+  if(!rows.length){alert('No hay registros disponibles para cobrar.');return}
+  form('Seleccionar cuenta',[{id:'target',label:basis==='unit'?'Unidad / propiedad':'Residente / miembro',type:'select',options:rows.map(x=>basis==='unit'?x.label:x.name)}],async()=>{
+    const selected=rows.find(x=>(basis==='unit'?x.label:x.name)===$('f_target').value);if(!selected)return false;
+    $('dlg').close();setTimeout(()=>openPaymentForm({kind:basis,id:selected.id,label:basis==='unit'?selected.label:selected.name}),100);return false
+  })
+};
 $('addMaint').onclick=async()=>{const [u,v]=await Promise.all([all('units'),all('vendors')]);form('Nueva orden de trabajo',[{id:'title',label:'Título'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'location',label:'Unidad / área',type:'select',options:['Área común',...u.map(x=>x.label)]},{id:'category',label:'Categoría',type:'select',options:['Electricidad','Plomería','Limpieza','Jardinería','Seguridad','Pintura','Construcción','Otro']},{id:'priority',label:'Prioridad',type:'select',options:['Baja','Normal','Alta','Urgente']},{id:'assigned',label:'Responsable interno'},{id:'vendor',label:'Proveedor',type:'select',options:['Sin proveedor',...v.map(x=>x.name)]},{id:'estimated',label:'Costo estimado',type:'number'},{id:'actual',label:'Costo real',type:'number'},{id:'status',label:'Estado',type:'select',options:['Abierto','Asignado','En proceso','En espera','Completado','Cancelado']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const loc=$('f_location').value,un=u.find(x=>x.label===loc);const o={id:uid('maint'),title:$('f_title').value,date:$('f_date').value,unitId:un?.id||'',location:loc,category:$('f_category').value,priority:$('f_priority').value,assignedTo:$('f_assigned').value,vendorName:$('f_vendor').value==='Sin proveedor'?'':$('f_vendor').value,estimatedCost:+$('f_estimated').value||0,actualCost:+$('f_actual').value||0,status:$('f_status').value,description:$('f_description').value};await put('maintenance',o);await audit('create','maintenance',o.id,o)})};
 $('addIncident').onclick=()=>form('Nuevo incidente',[{id:'title',label:'Título'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'location',label:'Lugar'},{id:'severity',label:'Severidad',type:'select',options:['Baja','Media','Alta','Crítica']},{id:'description',label:'Descripción',type:'textarea'}],async()=>{const o={id:uid('inc'),title:$('f_title').value,date:$('f_date').value,location:$('f_location').value,severity:$('f_severity').value,description:$('f_description').value};await put('incidents',o);await audit('create','security',o.id,o)});
 $('addVisitor').onclick=async()=>{const u=await all('units');form('Entrada de visitante',[{id:'name',label:'Nombre visitante'},{id:'date',label:'Fecha',type:'date',value:today()},{id:'unit',label:'Unidad',type:'select',options:['Sin unidad',...u.map(x=>x.label)]},{id:'authorized',label:'Autorizado por'},{id:'purpose',label:'Motivo'},{id:'vehicle',label:'Vehículo / placa'},{id:'checkin',label:'Hora entrada',type:'time',value:new Date().toTimeString().slice(0,5)}],async()=>{const ul=$('f_unit').value,un=u.find(x=>x.label===ul);const o={id:uid('vis'),name:$('f_name').value,date:$('f_date').value,unitId:un?.id||'',unitLabel:ul==='Sin unidad'?'':ul,authorizedBy:$('f_authorized').value,purpose:$('f_purpose').value,vehicle:$('f_vehicle').value,checkIn:$('f_checkin').value,checkOut:'',createdAt:new Date().toISOString()};await put('visitors',o);await audit('checkin','security',o.id,o)})};
@@ -515,9 +708,20 @@ $('residentSearch').oninput=residents;$('duesMonth').onchange=dues;document.quer
 
 $('orgLogoInput').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>1500000){alert('El logo debe pesar menos de 1.5 MB.');e.target.value='';return}const reader=new FileReader();reader.onload=async()=>{settings.logoDataUrl=reader.result;await put('settings',{...settings,id:'main'});await loadSettings();await audit('edit','branding','logo');toast('Logo guardado')};reader.readAsDataURL(f);e.target.value=''};
 $('removeLogoBtn').onclick=async()=>{settings.logoDataUrl='';await put('settings',{...settings,id:'main'});await loadSettings();await audit('edit','branding','logo-remove');toast('Logo eliminado')};
-$('saveSettings').onclick=async()=>{settings={...settings,id:'main',organization:$('sOrg').value||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,schemaVersion:3};await put('settings',settings);await audit('edit','settings','main');await loadSettings();toast('Configuración guardada')};
+
+
+$('quickTx').onclick=()=>{view('treasury');setTimeout(()=>$('addTx').click(),50)};
+$('quickResident').onclick=()=>{view('residents');setTimeout(()=>$('addResident').click(),50)};
+$('quickPayment').onclick=()=>{view('dues');setTimeout(()=>$('recordDuePayment').click(),50)};
+$('quickNotice').onclick=()=>{view('communications');setTimeout(()=>$('addNotice').click(),50)};
+$('goAudit').onclick=()=>view('admin');
+$('refreshHealth').onclick=async()=>{await renderHealth();toast('Revisión completada')};
+$('saveSettings').onclick=async()=>{
+  settings={...settings,id:'main',organization:$('sOrg').value.trim()||'Residencial Admin',orgType:$('sType').value,manager:$('sManager').value.trim(),billingBasis:$('sBillingBasis').value,dueAmount:+$('sDue').value||0,graceDays:+$('sGrace').value||0,latePct:+$('sLatePct').value||0,legalId:$('sLegalId').value.trim(),orgPhone:$('sOrgPhone').value.trim(),orgEmail:$('sOrgEmail').value.trim(),address:$('sAddress').value.trim(),slogan:$('sSlogan').value.trim(),schemaVersion:SCHEMA_VERSION};
+  await put('settings',settings);await audit('edit','settings','main');await loadSettings();await dash();toast('Configuración guardada')
+};
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),700)}
-$('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:6,schemaVersion:3,exportedAt:new Date().toISOString()};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
+$('backupBtn').onclick=async()=>{const d={format:'residencial-admin',version:7,appVersion:APP_VERSION,schemaVersion:SCHEMA_VERSION,exportedAt:new Date().toISOString(),organization:settings.organization};for(const s of stores)d[s]=await all(s);download(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),'respaldo_residencial_'+today()+'.json');settings.lastBackupAt=new Date().toISOString();await put('settings',settings);dash()};
 $('restoreInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.format==='residencial-admin'){for(const s of stores){for(const x of await all(s))await del(s,x.id);for(const x of d[s]||[])await put(s,x)}}else if(d.version>=3&&Array.isArray(d.members)&&Array.isArray(d.transactions)){for(const m of d.members||[])await put('residents',{id:'legacy_'+m.id,name:m.name,role:'Propietario',unitId:'',unitLabel:'',phone:m.phone||'',email:'',status:'Activo'});for(const t of d.transactions||[])await put('transactions',t);if(d.settings)await put('settings',{id:'main',organization:d.settings.organization||'Residencial Admin',orgType:'Junta de Vecinos',manager:d.settings.treasurer||'',dueAmount:+d.settings.dueAmount||0,graceDays:5,latePct:2})}else throw Error('Formato no compatible');await loadSettings();await ensureDefaultUser();view('dashboard');toast('Respaldo restaurado')}catch(err){alert('No se pudo restaurar: '+err.message)}e.target.value=''};
 $('privacyBtn').onclick=()=>document.body.classList.toggle('money-hidden');window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('installBtn').hidden=false});$('installBtn').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('installBtn').hidden=true};
 (async()=>{try{
