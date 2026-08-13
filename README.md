@@ -1,6 +1,6 @@
 # Residencial Admin — PWA
 
-**Versión actual:** 7.1  
+**Versión actual:** 7.2  
 **Estado:** PWA local/offline en evolución hacia una plataforma con backend central, app móvil Android (APK) y portal web de escritorio.
 
 ## 1. Propósito
@@ -77,7 +77,12 @@ Incluye:
 - Mora/recargo porcentual.
 - Registro de pagos.
 - Aplicación del pago a cuotas pendientes en orden cronológico.
-- Estado pagado/parcial/pendiente.
+- Estado pagado/parcial/pendiente/anulado.
+- Previsualización antes de generar cuotas: período, base de cobro, registros, duplicados, monto unitario y total.
+- Selección múltiple de cuotas.
+- Anulación con motivo, usuario y fecha, sin afectar cuentas por cobrar.
+- Eliminación definitiva restringida a Administrador y solo para cuotas sin pagos, abonos ni recargos.
+- Los pagos nuevos guardan su distribución por cuota para fortalecer la trazabilidad y futura reversión.
 - Compatibilidad con cuotas históricas basadas en miembro.
 
 ### Mantenimiento
@@ -347,6 +352,7 @@ El proyecto evolucionó desde una aplicación de Tesorería hacia Residencial Ad
 - v6.6: identidad visual configurable, reportes diversificados, autocompletado de residentes y deduplicación de notificaciones.
 - **v7.0:** auditoría integral, salud de datos, dashboard ejecutivo, cobranza adaptable por residente/unidad, anulación segura de movimientos, configuración institucional ampliada y documentación consolidada.
 - **v7.1:** encabezado institucional de reportes rediseñado con logo lateral, tipo de organización y nombre centrados.
+- **v7.2:** gestión segura de cuotas: previsualización de generación, selección múltiple, anulación auditada, eliminación administrativa protegida y trazabilidad de aplicación de pagos.
 
 ## 14. Seguridad operativa
 
