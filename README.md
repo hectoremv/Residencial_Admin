@@ -1,6 +1,6 @@
 # Residencial Admin — PWA
 
-**Versión actual:** 7.0  
+**Versión actual:** 7.1  
 **Estado:** PWA local/offline en evolución hacia una plataforma con backend central, app móvil Android (APK) y portal web de escritorio.
 
 ## 1. Propósito
@@ -173,6 +173,7 @@ Funciones:
 - Compartir usando la función nativa del celular (incluido WhatsApp).
 - CSV.
 - PDF/Imprimir.
+- Encabezado institucional con logo a la izquierda y títulos centrados, similar al encabezado principal de la app.
 - Logo y datos institucionales.
 
 ### Administración
@@ -345,6 +346,7 @@ El proyecto evolucionó desde una aplicación de Tesorería hacia Residencial Ad
 - v6.4: recuperación y estrategia de caché robusta.
 - v6.6: identidad visual configurable, reportes diversificados, autocompletado de residentes y deduplicación de notificaciones.
 - **v7.0:** auditoría integral, salud de datos, dashboard ejecutivo, cobranza adaptable por residente/unidad, anulación segura de movimientos, configuración institucional ampliada y documentación consolidada.
+- **v7.1:** encabezado institucional de reportes rediseñado con logo lateral, tipo de organización y nombre centrados.
 
 ## 14. Seguridad operativa
 

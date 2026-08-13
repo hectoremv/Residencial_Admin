@@ -19,8 +19,8 @@ small{color:#6b7e7a}
 <p>Esta herramienta elimina únicamente el <strong>Service Worker y la caché de archivos de la aplicación</strong>.</p>
 <p class="warn"><strong>No elimina IndexedDB ni los datos administrativos.</strong> Residentes, unidades, movimientos y demás registros locales se conservan.</p>
 <p id="status">Preparando actualización…</p>
-<button id="go" disabled>Abrir Residencial Admin v7.0</button>
-<small>Herramienta de recuperación de caché · v7.0</small>
+<button id="go" disabled>Abrir Residencial Admin v7.1</button>
+<small>Herramienta de recuperación de caché · v7.1</small>
 </div>
 <script>
 (async()=>{
@@ -40,7 +40,7 @@ small{color:#6b7e7a}
     status.textContent='La limpieza automática encontró un problema: '+e.message;
     go.disabled=false;
   }
-  go.onclick=()=>location.replace('./index.html?v=70&fresh='+Date.now());
+  go.onclick=()=>location.replace('./index.html?v=71&fresh='+Date.now());
 })();
 </script>
 </body>

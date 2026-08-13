@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Residencial Admin v7.0</title>
+<title>Residencial Admin v7.1</title>
 <style>
 :root{--bg:#f4f7f6;--panel:#fff;--text:#17322f;--muted:#6b7e7a;--line:#dbe7e3;--brand:#0f766e;--brand2:#115e59;--danger:#b42318;--soft:#e7f5f2;--warn:#fff5e5;--blue:#2563eb}
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}button{cursor:pointer}
@@ -69,17 +69,44 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 .sidebar-version{padding:12px 20px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--line)}
 @media(min-width:760px){.quick-actions{grid-template-columns:repeat(4,1fr)}.data-health-grid{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:520px){.top-user{display:none}.user-pill{display:none}.header-logo{width:38px;height:38px}}
+
+/* v7.1 report institutional header */
+.report-brand-header{display:grid;grid-template-columns:96px 1fr 96px;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.report-brand-logo{width:92px;height:92px;object-fit:contain;justify-self:start}
+.report-brand-center{text-align:center;min-width:0}
+.report-brand-type{font-size:.78rem;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);font-weight:750;margin-bottom:3px}
+.report-brand-name{font-size:1.45rem;line-height:1.15;font-weight:900;color:var(--text);margin:0}
+.report-brand-slogan{font-size:.84rem;color:var(--muted);margin-top:5px}
+.report-brand-contact{font-size:.78rem;color:var(--muted);margin-top:5px}
+.report-brand-spacer{width:92px}
+.report-title{text-align:center;margin-top:12px}
+.report-title h3{margin:0;font-size:1.16rem}
+.report-title .sub{margin-top:4px}
+@media(max-width:520px){
+  .report-brand-header{grid-template-columns:72px 1fr 72px;gap:8px}
+  .report-brand-logo{width:68px;height:68px}
+  .report-brand-spacer{width:68px}
+  .report-brand-name{font-size:1.18rem}
+  .report-brand-type{font-size:.68rem}
+  .report-brand-slogan,.report-brand-contact{font-size:.72rem}
+}
+@media print{
+  .report-brand-header{grid-template-columns:90px 1fr 90px}
+  .report-brand-logo{width:86px;height:86px}
+  .report-brand-name{font-size:18pt}
+  .report-brand-type{font-size:9pt}
+}
 </style>
 </head>
 <body>
 <header class="top">
 <button class="icon" id="menuBtn">☰</button>
 <img id="headerLogo" class="header-logo" alt="Logo">
-<div class="grow"><div class="eyebrow" id="orgType">Administración · v7.0</div><h1 id="orgName">Residencial Admin</h1></div>
+<div class="grow"><div class="eyebrow" id="orgType">Administración · v7.1</div><h1 id="orgName">Residencial Admin</h1></div>
 <div class="user-pill" id="activeUserLabel"></div>
 <button class="ghost" id="privacyBtn">👁️</button><button class="ghost" id="installBtn" hidden>Instalar</button>
 </header>
-<aside class="sidebar" id="sidebar"><div class="head"><strong id="sidebarOrgName">Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav><div class="sidebar-version">Residencial Admin · v7.0 · PWA local</div></aside><div class="overlay" id="overlay"></div>
+<aside class="sidebar" id="sidebar"><div class="head"><strong id="sidebarOrgName">Residencial Admin</strong><button class="icon" id="closeMenu">✕</button></div><nav id="nav"></nav><div class="sidebar-version">Residencial Admin · v7.1 · PWA local</div></aside><div class="overlay" id="overlay"></div>
 <main>
 
 <section id="dashboard" class="view active">
@@ -257,7 +284,7 @@ dialog{width:min(95vw,680px);border:0;border-radius:18px;padding:16px;box-shadow
 <script>window.addEventListener('unhandledrejection',e=>showBootError(e.reason));window.addEventListener('error',e=>showBootError(e.error||e.message));
 
 const DB='residencialAdminDB',VER=4;
-const APP_VERSION='7.0',SCHEMA_VERSION=4;
+const APP_VERSION='7.1',SCHEMA_VERSION=4;
 const stores=['settings','users','units','residents','transactions','dues','maintenance','incidents','visitors','reservations','notices','meetings','documents','assets','vendors','notifications','audit'];
 let db,settings={},saveHandler=null,deferred=null,currentUnitId='',unitTab='account',activeUser=null,portalResidentId='',currentReportType='summary';
 const $=x=>document.getElementById(x),uid=p=>p+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),today=()=>new Date().toISOString().slice(0,10),ym=d=>(d||today()).slice(0,7),money=n=>new Intl.NumberFormat('es-DO',{style:'currency',currency:'DOP'}).format(Number(n||0)),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])),dateText=s=>s?new Date(s+'T12:00:00').toLocaleDateString('es-DO'):'';
@@ -601,7 +628,24 @@ async function notifications(){
 }
 
 function reportDateFilter(rows){const from=$('reportFrom')?.value||'0000-01-01',to=$('reportTo')?.value||'9999-12-31';return rows.filter(x=>!x.date||(x.date>=from&&x.date<=to))}
-function brandHeader(title,period){const contact=[settings.legalId?`ID: ${settings.legalId}`:'',settings.orgPhone||'',settings.orgEmail||'',settings.address||''].filter(Boolean).join(' · ');return `${settings.logoDataUrl?`<img class="report-logo" src="${settings.logoDataUrl}" alt="Logo">`:''}<h2>${esc(settings.organization)}</h2>${settings.slogan?`<div class="sub">${esc(settings.slogan)}</div>`:''}${contact?`<div class="report-brand-contact">${esc(contact)}</div>`:''}<p><strong>${title}</strong></p><p class="sub">Período: ${esc(period)}</p>`}
+function brandHeader(title,period){
+  const contact=[settings.legalId?`ID: ${settings.legalId}`:'',settings.orgPhone||'',settings.orgEmail||'',settings.address||''].filter(Boolean).join(' · ');
+  const logo=settings.logoDataUrl?`<img class="report-brand-logo" src="${settings.logoDataUrl}" alt="Logo">`:`<div class="report-brand-logo"></div>`;
+  return `<div class="report-brand-header">
+    ${logo}
+    <div class="report-brand-center">
+      <div class="report-brand-type">${esc(settings.orgType||'Organización')}</div>
+      <h2 class="report-brand-name">${esc(settings.organization)}</h2>
+      ${settings.slogan?`<div class="report-brand-slogan">${esc(settings.slogan)}</div>`:''}
+      ${contact?`<div class="report-brand-contact">${esc(contact)}</div>`:''}
+    </div>
+    <div class="report-brand-spacer"></div>
+  </div>
+  <div class="report-title">
+    <h3>${esc(title)}</h3>
+    <div class="sub">Período: ${esc(period)}</div>
+  </div>`;
+}
 async function report(){const [txAll,duesAll,maintAll,incAll,resAll,unitAll,resvAll]=await Promise.all([all('transactions'),all('dues'),all('maintenance'),all('incidents'),all('residents'),all('units'),all('reservations')]);const tx=reportDateFilter(txAll),maint=reportDateFilter(maintAll),inc=reportDateFilter(incAll),resv=reportDateFilter(resvAll),t=totals(tx),pending=duesAll.reduce((s,d)=>s+duePending(d),0),period=($('reportFrom').value||$('reportTo').value)?`${$('reportFrom').value||'Inicio'} a ${$('reportTo').value||'Hoy'}`:'Todos los registros';let body=brandHeader(currentReportType==='summary'?'Informe Administrativo General':currentReportType==='financial'?'Informe Financiero Detallado':currentReportType==='collections'?'Informe de Cuotas y Cobros':'Informe Operativo',period);
 if(currentReportType==='summary')body+=`<table class="report-table"><tr><td>Unidades</td><td>${unitAll.length}</td></tr><tr><td>Residentes</td><td>${resAll.length}</td></tr><tr><td>Ingresos</td><td>${money(t.i)}</td></tr><tr><td>Gastos</td><td>${money(t.e)}</td></tr><tr><td>Balance</td><td>${money(t.i-t.e)}</td></tr><tr><td>Cuentas por cobrar</td><td>${money(pending)}</td></tr><tr><td>Órdenes abiertas</td><td>${maintAll.filter(x=>!['Completado','Cancelado'].includes(x.status)).length}</td></tr><tr><td>Incidentes</td><td>${incAll.length}</td></tr></table>`;
 else if(currentReportType==='financial'){body+=`<div class="report-section"><h3>Resumen</h3><table class="report-table"><tr><td>Ingresos</td><td>${money(t.i)}</td></tr><tr><td>Gastos</td><td>${money(t.e)}</td></tr><tr><td>Patrocinados</td><td>${money(t.s)}</td></tr><tr><td>Balance</td><td>${money(t.i-t.e)}</td></tr></table></div>`;for(const [type,title] of [['income','Ingresos'],['expense','Gastos'],['sponsored','Patrocinados / directos']]){const rows=tx.filter(x=>x.type===type);body+=`<div class="report-section"><h3>${title}</h3><table class="report-table"><tr><th>Fecha / persona / concepto</th><th>Monto</th></tr>${rows.map(x=>`<tr><td>${dateText(x.date)} · ${esc(x.person||'')} · ${esc(x.concept||'')}</td><td>${money(x.amount)}</td></tr>`).join('')||'<tr><td colspan="2">Sin registros</td></tr>'}</table></div>`}}
